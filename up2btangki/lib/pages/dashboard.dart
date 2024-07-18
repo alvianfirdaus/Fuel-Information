@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:up2btangki/pages/history.dart';
 
 class DashboardPage extends StatelessWidget {
   @override
@@ -99,7 +100,10 @@ class DashboardPage extends StatelessWidget {
                 SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () {
-                    // Add your action here
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => HistoryPage()),
+                    );
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.yellow, // Background color

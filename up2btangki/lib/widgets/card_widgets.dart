@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/models/item.dart';
-import 'package:myapp/data/data_detail.dart';
-import 'package:myapp/utils.dart';
-import 'package:myapp/pages/riwayatmodal.dart';
+import 'package:up2btangki/models/item.dart';
+import 'package:up2btangki/utils.dart';
 
 class CardWidget extends StatelessWidget {
   final List<Item> items;
