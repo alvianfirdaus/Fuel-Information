@@ -38,15 +38,17 @@ class ItemCard extends StatelessWidget {
       },
       child: Card(
         color: Color.fromARGB(255, 245, 245, 245),
-        elevation: 0,
+        elevation: 8, // Higher elevation for more shadow
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10), // Rounded corners
+        ),
         child: ListTile(
           contentPadding: EdgeInsets.all(8),
-          leading: Image.network(item.imageUrl),
           title: Text(
-            item.nama,
+            'Penggunaan Bahan Bakar Harian',
             style: SafeGoogleFont(
               'Urbanist',
-              fontSize: 20,
+              fontSize: 15,
               fontWeight: FontWeight.w700,
               height: 1.5999999728,
               color: Color(0xff4a4a4a),
@@ -55,17 +57,7 @@ class ItemCard extends StatelessWidget {
           subtitle: Row(
             children: [
               Text(
-                item.tanggalsc,
-                style: SafeGoogleFont(
-                  'Urbanist',
-                  fontSize: 16,
-                  fontWeight: FontWeight.w400,
-                  color: Color(0xff808080),
-                ),
-              ),
-              SizedBox(width: 8),
-              Text(
-                item.waktusc,
+                'Waktu ${item.waktu}',
                 style: SafeGoogleFont(
                   'Urbanist',
                   fontSize: 16,
@@ -79,10 +71,14 @@ class ItemCard extends StatelessWidget {
             onTap: () {
               _showDetailDialog(context);
             },
-            child: Image.asset(
-              'assets/images/ep-arrow-up.png',
-              width: 24,
-              height: 24,
+            child: Text(
+              '${item.bbmpemakaian} liter',
+              style: SafeGoogleFont(
+                'Urbanist',
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Color(0xff4a4a4a),
+              ),
             ),
           ),
         ),
@@ -97,7 +93,7 @@ class ItemCard extends StatelessWidget {
         return AlertDialog(
           content: SizedBox(
             width: 297,
-            height: 560,
+            height: 220,
             child: SingleChildScrollView(
               child: Container(
                 decoration: BoxDecoration(
@@ -107,7 +103,7 @@ class ItemCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
-                      color: Colors.blue,
+                      color: const Color.fromARGB(255, 243, 229, 33),
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Center(
@@ -123,54 +119,15 @@ class ItemCard extends StatelessWidget {
                     ),
                     Padding(
                       padding: EdgeInsets.only(left: 8, top: 8),
-                      child:
-                          buildInfoRowWithSizedBox('NIK', '3275080803030018'),
+                      child: buildInfoRowWithSizedBox('BBM Awal', '${item.bbmawal} liter'),
                     ),
                     Padding(
                       padding: EdgeInsets.only(left: 8, top: 8),
-                      child: buildInfoRowWithSizedBox('Nama', 'PETER CHEN'),
+                      child: buildInfoRowWithSizedBox('BBM Akhir', '${item.bbmakhir} liter'),
                     ),
                     Padding(
                       padding: EdgeInsets.only(left: 8, top: 8),
-                      child: buildInfoRowWithSizedBox(
-                          'Tanggal Lahir', '08-03-2003'),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(left: 8, top: 8),
-                      child: buildInfoRowWithSizedBox(
-                          'Jenis Kelamin', 'LAKI-LAKI'),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(left: 8, top: 8),
-                      child: buildInfoRowWithSizedBox('Golongan Darah', 'O'),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(left: 8, top: 8),
-                      child:
-                          buildInfoRowWithSizedBox('Alamat', 'Jl. Kaliurang'),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(left: 8, top: 8),
-                      child: buildInfoRowWithSizedBox('Agama', 'ISLAM'),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(left: 8, top: 8),
-                      child: buildInfoRowWithSizedBox(
-                          'Status Perkawinan', 'BELUM KAWIN'),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(left: 8, top: 8),
-                      child: buildInfoRowWithSizedBox(
-                          'Pekerjaan', 'KARYAWAN SWASTA'),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(left: 8, top: 8),
-                      child: buildInfoRowWithSizedBox('Kewarganegaraan', 'WNI'),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(left: 8, top: 8),
-                      child: buildInfoRowWithSizedBox(
-                          'Berlaku Hingga', 'SEUMUR HIDUP'),
+                      child: buildInfoRowWithSizedBox('Total Pemakaian', '${item.bbmpemakaian} liter'),
                     ),
                   ],
                 ),
@@ -181,6 +138,4 @@ class ItemCard extends StatelessWidget {
       },
     );
   }
-
-  // Rest of the code...
 }
