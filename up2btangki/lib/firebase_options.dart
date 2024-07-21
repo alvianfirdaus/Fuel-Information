@@ -47,6 +47,7 @@ class DefaultFirebaseOptions {
     projectId: 'up2btangki',
     authDomain: 'up2btangki.firebaseapp.com',
     storageBucket: 'up2btangki.appspot.com',
+    databaseURL: 'https://up2btangki-default-rtdb.asia-southeast1.firebasedatabase.app',
     measurementId: 'G-ZS6H51SV2N',
   );
 
@@ -56,6 +57,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '659409368282',
     projectId: 'up2btangki',
     storageBucket: 'up2btangki.appspot.com',
+    databaseURL: 'https://up2btangki-default-rtdb.asia-southeast1.firebasedatabase.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
@@ -65,6 +67,7 @@ class DefaultFirebaseOptions {
     projectId: 'up2btangki',
     storageBucket: 'up2btangki.appspot.com',
     iosBundleId: 'com.example.up2btangki',
+    databaseURL: 'https://up2btangki-default-rtdb.asia-southeast1.firebasedatabase.app',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
@@ -74,6 +77,7 @@ class DefaultFirebaseOptions {
     projectId: 'up2btangki',
     storageBucket: 'up2btangki.appspot.com',
     iosBundleId: 'com.example.up2btangki',
+    databaseURL: 'https://up2btangki-default-rtdb.asia-southeast1.firebasedatabase.app',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
@@ -84,5 +88,6 @@ class DefaultFirebaseOptions {
     authDomain: 'up2btangki.firebaseapp.com',
     storageBucket: 'up2btangki.appspot.com',
     measurementId: 'G-0P1KSVFZQR',
+    databaseURL: 'https://up2btangki-default-rtdb.asia-southeast1.firebasedatabase.app',
   );
 }

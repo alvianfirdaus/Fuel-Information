@@ -2,6 +2,7 @@
   "project_info": {
     "project_number": "659409368282",
     "project_id": "up2btangki",
+    "firebase_url": "https://up2btangki-default-rtdb.asia-southeast1.firebasedatabase.app",
     "storage_bucket": "up2btangki.appspot.com"
   },
   "client": [

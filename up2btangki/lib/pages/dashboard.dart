@@ -1,7 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:up2btangki/pages/history.dart';
 
-class DashboardPage extends StatelessWidget {
+class DashboardPage extends StatefulWidget {
+  @override
+  _DashboardPageState createState() => _DashboardPageState();
+}
+
+class _DashboardPageState extends State<DashboardPage> {
+  final DatabaseReference _databaseReference = FirebaseDatabase.instance.ref();
+  int _fuelLevel = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _databaseReference.child('fuelLevel/value').onValue.listen((event) {
+      final dynamic value = event.snapshot.value;
+      setState(() {
+        _fuelLevel = (value != null) ? int.tryParse(value.toString()) ?? 0 : 0;
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -68,7 +88,7 @@ class DashboardPage extends StatelessWidget {
                           ),
                           SizedBox(height: 8),
                           Text(
-                            '750 Liter',
+                            '$_fuelLevel Liter',
                             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black),
                           ),
                         ],
