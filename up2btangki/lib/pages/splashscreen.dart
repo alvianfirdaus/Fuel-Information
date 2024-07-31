@@ -19,12 +19,12 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+      backgroundColor: Color.fromARGB(255, 255, 239, 59),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset('assets/images/logo.png',
+            Image.asset('assets/images/3.png',
                 width: 170, height: 170),
             SizedBox(height: 16),
           ],
@@ -33,7 +33,7 @@ class _SplashScreenState extends State<SplashScreen> {
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Text(
-          'Sitangki @ 2024',
+          'FuTra @ 2024',
           style: TextStyle(
             fontFamily: 'Urbanist',
             fontSize: 12,

@@ -1,34 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:up2btangki/models/item.dart';
-import 'package:up2btangki/utils.dart';
 
 class CardWidget extends StatelessWidget {
-  final List<Item> items;
-
-  const CardWidget({required this.items});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: GridView.builder(
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 1, // Menampilkan 2 item per baris
-          childAspectRatio: 3.7, // Mengatur rasio lebar-tinggi item
-        ),
-        itemCount: items.length,
-        itemBuilder: (context, index) {
-          final item = items[index];
-          return ItemCard(item: item);
-        },
-      ),
-    );
-  }
-}
-
-class ItemCard extends StatelessWidget {
   final Item item;
 
-  const ItemCard({required this.item});
+  const CardWidget({required this.item});
 
   @override
   Widget build(BuildContext context) {
@@ -38,32 +14,21 @@ class ItemCard extends StatelessWidget {
       },
       child: Card(
         color: Color.fromARGB(255, 245, 245, 245),
-        elevation: 8, // Higher elevation for more shadow
+        elevation: 8,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10), // Rounded corners
+          borderRadius: BorderRadius.circular(10),
         ),
         child: ListTile(
           contentPadding: EdgeInsets.all(8),
           title: Text(
             'Penggunaan Bahan Bakar Harian',
-            style: SafeGoogleFont(
-              'Urbanist',
-              fontSize: 15,
-              fontWeight: FontWeight.w700,
-              height: 1.5999999728,
-              color: Color(0xff4a4a4a),
-            ),
+            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: Color(0xff4a4a4a)),
           ),
           subtitle: Row(
             children: [
               Text(
-                'Waktu ${item.waktu}',
-                style: SafeGoogleFont(
-                  'Urbanist',
-                  fontSize: 16,
-                  fontWeight: FontWeight.w400,
-                  color: Color(0xff808080),
-                ),
+                'Waktu ${item.date}',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400, color: Color(0xff808080)),
               ),
             ],
           ),
@@ -72,13 +37,8 @@ class ItemCard extends StatelessWidget {
               _showDetailDialog(context);
             },
             child: Text(
-              '${item.bbmpemakaian} liter',
-              style: SafeGoogleFont(
-                'Urbanist',
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Color(0xff4a4a4a),
-              ),
+              '${item.konsum} liter',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xff4a4a4a)),
             ),
           ),
         ),
@@ -119,15 +79,15 @@ class ItemCard extends StatelessWidget {
                     ),
                     Padding(
                       padding: EdgeInsets.only(left: 8, top: 8),
-                      child: buildInfoRowWithSizedBox('BBM Awal', '${item.bbmawal} liter'),
+                      child: Text('BBM Awal: ${item.awal} liter'),
                     ),
                     Padding(
                       padding: EdgeInsets.only(left: 8, top: 8),
-                      child: buildInfoRowWithSizedBox('BBM Akhir', '${item.bbmakhir} liter'),
+                      child: Text('BBM Akhir: ${item.akhir} liter'),
                     ),
                     Padding(
                       padding: EdgeInsets.only(left: 8, top: 8),
-                      child: buildInfoRowWithSizedBox('Total Pemakaian', '${item.bbmpemakaian} liter'),
+                      child: Text('Total Pemakaian: ${item.konsum} liter'),
                     ),
                   ],
                 ),
