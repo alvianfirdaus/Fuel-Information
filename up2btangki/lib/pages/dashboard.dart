@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:up2btangki/pages/history.dart';
+import 'package:up2btangki/pages/info.dart';
 
 class DashboardPage extends StatefulWidget {
   @override
@@ -293,7 +294,15 @@ class _DashboardPageState extends State<DashboardPage> {
           ),
         ],
         selectedItemColor: Colors.yellow,
-      ),
+        onTap: (index) {
+          if (index == 1) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => InfoPage()),
+              );
+              }
+              },
+              ),
     );
   }
 }
