@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:up2btangki/routes/routes.dart';
+import 'package:up2btangki/pages/dashboard.dart';
 
 class LoginScreen extends StatelessWidget {
   @override
@@ -67,7 +67,10 @@ class _AccessCodeDialogState extends State<AccessCodeDialog> {
     if (snapshot.exists) {
       final int token = snapshot.value as int;
       if (token == int.parse(_codeController.text)) {
-        Navigator.pushReplacementNamed(context, Routes.dashboard);
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => DashboardPage()),
+        );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Kode akses salah')));
       }
