@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:up2btangki/models/item.dart';
+import 'package:up2btangki/models/itemreal.dart';
 
 class CardWidget extends StatelessWidget {
-  final Item item;
+  final ItemReal item;
 
   const CardWidget({required this.item});
 

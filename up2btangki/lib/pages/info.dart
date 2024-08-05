@@ -28,7 +28,7 @@ class _InfoPageState extends State<InfoPage> {
         selectedItemColor: Colors.yellow,
         onTap: (int index) {
           if (index == 0) {
-            Navigator.pushReplacement(
+            Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => DashboardPage()),
             );
