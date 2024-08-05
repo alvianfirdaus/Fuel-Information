@@ -1,22 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:up2btangki/pages/info.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:up2btangki/pages/riwayatgenset.dart';
+import 'package:up2btangki/models/item.dart';
 
 class GensetPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.yellow, // Set AppBar background color to yellow
+        backgroundColor: Colors.yellow,
         title: Text(
           'Informasi Genset',
           style: TextStyle(
-            color: Colors.black, // Text color
-            fontWeight: FontWeight.bold, // Make text bold
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
           ),
         ),
-        centerTitle: true, // Center the title text
+        centerTitle: true,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black), // Icon color to match the text
+          icon: Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
             Navigator.of(context).pop();
           },
@@ -27,24 +29,24 @@ class GensetPage extends StatelessWidget {
           children: [
             Container(
               margin: EdgeInsets.all(40.0),
-              width: double.infinity, // Make the image container take up the full width
+              width: double.infinity,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(15.0), // Rounded corners
+                borderRadius: BorderRadius.circular(15.0),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black26, // Shadow color
-                    blurRadius: 10.0, // Shadow blur radius
-                    offset: Offset(0, 4), // Shadow offset
+                    color: Colors.black26,
+                    blurRadius: 10.0,
+                    offset: Offset(0, 4),
                   ),
                 ],
               ),
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(15.0), // Apply same rounded corners
+                borderRadius: BorderRadius.circular(15.0),
                 child: Image.asset(
-                  'assets/images/genset.jpg', // Replace with your image asset
-                  fit: BoxFit.cover, // Ensure the image covers the container
-                  width: 330, // Set the width
-                  height: 330, // Set the height
+                  'assets/images/genset.jpg',
+                  fit: BoxFit.cover,
+                  width: 330,
+                  height: 330,
                 ),
               ),
             ),
@@ -53,7 +55,7 @@ class GensetPage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Center( // Center the text
+                  Center(
                     child: Text(
                       'Genset UIT JBM & UP2B JAWA TIMUR',
                       style: TextStyle(
@@ -76,8 +78,14 @@ class GensetPage extends StatelessWidget {
                       ),
                       SizedBox(width: 8),
                       InkWell(
-                        onTap: () {
-                          // Handle tap
+                        onTap: () async {
+                          List<Item> items = await fetchItemsFromRealtimeDatabase();
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => RiwayatGenset(items: items),
+                            ),
+                          );
                         },
                         child: Text(
                           'Lihat',
@@ -97,6 +105,28 @@ class GensetPage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<List<Item>> fetchItemsFromRealtimeDatabase() async {
+    List<Item> itemList = [];
+    final database = FirebaseDatabase.instance.ref();
+
+    try {
+      final snapshot = await database.child('xmaintenance').get();
+      
+      if (snapshot.exists) {
+        final itemsMap = snapshot.value as Map<dynamic, dynamic>;
+        itemsMap.forEach((key, value) {
+          final itemData = value as Map<dynamic, dynamic>;
+          final item = Item.fromJson(itemData, key);
+          itemList.add(item);
+        });
+      }
+    } catch (e) {
+      print('Error fetching items: $e');
+    }
+
+    return itemList;
   }
 }
 
