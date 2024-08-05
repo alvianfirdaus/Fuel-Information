@@ -3,18 +3,65 @@ import 'package:up2btangki/models/item.dart'; // Import your Item model
 import 'package:up2btangki/widgets/card_widgetsperbaikan.dart'; // Import the CardWidgetPerbaikan widget
 import 'package:up2btangki/pages/addriwayatgenset.dart';
 
-class RiwayatGenset extends StatelessWidget {
+class RiwayatGenset extends StatefulWidget {
   final List<Item> items; // List of items
 
   RiwayatGenset({required this.items}); // Constructor
 
   @override
+  _RiwayatGensetState createState() => _RiwayatGensetState();
+}
+
+class _RiwayatGensetState extends State<RiwayatGenset> {
+  bool _isNewestFirst = true; // Toggle to control sorting
+
+  void _showFilterDialog() {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text('Filter'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            ListTile(
+              title: Text('Terbaru'),
+              onTap: () {
+                setState(() {
+                  _isNewestFirst = true;
+                });
+                Navigator.of(context).pop();
+              },
+            ),
+            ListTile(
+              title: Text('Terlama'),
+              onTap: () {
+                setState(() {
+                  _isNewestFirst = false;
+                });
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        ),
+      );
+    },
+  );
+
+  }
+
+  @override
   Widget build(BuildContext context) {
+    // Sort items based on the toggle
+    List<Item> sortedItems = _isNewestFirst
+        ? widget.items.reversed.toList()
+        : widget.items.toList();
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.yellow, // Set AppBar background color to yellow
         title: Text(
-          'Riwayat Genset',
+          'Perbaikan Genset',
           style: TextStyle(
             color: Colors.black, // Text color
             fontWeight: FontWeight.bold, // Make text bold
@@ -27,8 +74,17 @@ class RiwayatGenset extends StatelessWidget {
             Navigator.of(context).pop();
           },
         ),
+        actions: [
+          IconButton(
+            icon: Icon(
+              Icons.filter_list,
+              color: Colors.black,
+            ),
+            onPressed: _showFilterDialog,
+          ),
+        ],
       ),
-      body: items.isEmpty
+      body: sortedItems.isEmpty
           ? Center(
               child: Text(
                 'No data available',
@@ -36,9 +92,9 @@ class RiwayatGenset extends StatelessWidget {
               ),
             )
           : ListView.builder(
-              itemCount: items.length,
+              itemCount: sortedItems.length,
               itemBuilder: (context, index) {
-                return CardWidgetPerbaikan(item: items[index]);
+                return CardWidgetPerbaikan(item: sortedItems[index]);
               },
             ),
       floatingActionButton: FloatingActionButton(
