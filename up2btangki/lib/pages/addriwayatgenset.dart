@@ -72,57 +72,160 @@ class _AddRiwayatGensetState extends State<AddRiwayatGenset> {
           key: _formKey,
           child: ListView(
             children: [
-              TextFormField(
-                controller: _namaController,
-                decoration: InputDecoration(
-                  labelText: 'Nama',
-                  hintText: 'Masukkan Nama',
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Nama tidak boleh kosong';
-                  }
-                  return null;
-                },
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Nama',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 5),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.5),
+                          spreadRadius: 2,
+                          blurRadius: 5,
+                          offset: Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: TextFormField(
+                      controller: _namaController,
+                      decoration: InputDecoration(
+                        hintText: 'Masukkan Nama',
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.all(16),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Nama tidak boleh kosong';
+                        }
+                        return null;
+                      },
+                    ),
+                  ),
+                ],
               ),
-              TextFormField(
-                controller: _tanggalController,
-                decoration: InputDecoration(
-                  labelText: 'Tanggal',
-                  hintText: 'Masukkan Tanggal',
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Tanggal tidak boleh kosong';
-                  }
-                  return null;
-                },
+              SizedBox(height: 20),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Tanggal',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 5),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.5),
+                          spreadRadius: 2,
+                          blurRadius: 5,
+                          offset: Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: TextFormField(
+                      controller: _tanggalController,
+                      decoration: InputDecoration(
+                        hintText: 'Masukkan Tanggal',
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.all(16),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Tanggal tidak boleh kosong';
+                        }
+                        return null;
+                      },
+                    ),
+                  ),
+                ],
               ),
-              TextFormField(
-                controller: _waktuController,
-                decoration: InputDecoration(
-                  labelText: 'Waktu',
-                  hintText: 'Masukkan Waktu',
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Waktu tidak boleh kosong';
-                  }
-                  return null;
-                },
+              SizedBox(height: 20),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Waktu',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 5),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.5),
+                          spreadRadius: 2,
+                          blurRadius: 5,
+                          offset: Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: TextFormField(
+                      controller: _waktuController,
+                      decoration: InputDecoration(
+                        hintText: 'Masukkan Waktu',
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.all(16),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Waktu tidak boleh kosong';
+                        }
+                        return null;
+                      },
+                    ),
+                  ),
+                ],
               ),
-              TextFormField(
-                controller: _keteranganController,
-                decoration: InputDecoration(
-                  labelText: 'Keterangan',
-                  hintText: 'Uraian Kegiatan',
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Keterangan tidak boleh kosong';
-                  }
-                  return null;
-                },
+              SizedBox(height: 20),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Keterangan',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 5),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.5),
+                          spreadRadius: 2,
+                          blurRadius: 5,
+                          offset: Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: TextFormField(
+                      controller: _keteranganController,
+                      decoration: InputDecoration(
+                        hintText: 'Uraian Kegiatan',
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.all(16),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Keterangan tidak boleh kosong';
+                        }
+                        return null;
+                      },
+                    ),
+                  ),
+                ],
               ),
               SizedBox(height: 20),
               ElevatedButton(
