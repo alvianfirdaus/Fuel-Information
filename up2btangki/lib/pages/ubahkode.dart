@@ -20,9 +20,15 @@ class _UbahKodeState extends State<UbahKode> {
     if (_formKey.currentState!.validate()) {
       int oldCode = int.tryParse(_oldCodeController.text) ?? -1;
       int newCode = int.tryParse(_newCodeController.text) ?? -1;
+      int confirmCode = int.tryParse(_confirmCodeController.text) ?? -1;
 
-      if (oldCode == -1 || newCode == -1) {
+      if (oldCode == -1 || newCode == -1 || confirmCode == -1) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Kode akses harus berupa angka.')));
+        return;
+      }
+
+      if (newCode != confirmCode) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Konfirmasi kode akses tidak sesuai dengan kode akses baru.')));
         return;
       }
 
