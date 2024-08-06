@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:up2btangki/pages/about.dart';
 import 'package:up2btangki/pages/akses.dart';
 import 'package:up2btangki/pages/genset.dart';
+import 'package:up2btangki/pages/ubahkode.dart';
 
 class CardWidget extends StatelessWidget {
   final String title;
@@ -51,7 +52,10 @@ class Info extends StatelessWidget {
           CardWidget(
             title: 'Ubah Kode Akses',
             onTap: () {
-              // Tambahkan navigasi atau aksi lainnya di sini
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => UbahKode()),
+              );
             },
           ),
         ],

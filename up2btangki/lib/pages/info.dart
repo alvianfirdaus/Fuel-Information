@@ -7,6 +7,7 @@ class InfoPage extends StatefulWidget {
   _InfoPageState createState() => _InfoPageState();
 }
 
+
 class _InfoPageState extends State<InfoPage> {
   @override
   Widget build(BuildContext context) {

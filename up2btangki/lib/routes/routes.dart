@@ -6,6 +6,7 @@ import 'package:up2btangki/pages/login.dart';
 import 'package:up2btangki/pages/info.dart';
 import 'package:up2btangki/pages/riwayatgenset.dart';
 import 'package:up2btangki/pages/addriwayatgenset.dart';
+import 'package:up2btangki/pages/ubahkode.dart';
 
 
 
@@ -19,6 +20,7 @@ class Routes {
   static const String loginscreen = '/loginscreen';
   static const String riwayatgenset = '/riwayatgenset';
   static const String addriwayatgenset = '/addriwayatgenset';
+  static const String ubahkode = '/ubahkode';
 
   static Map<String, WidgetBuilder> routes = {
     splash: (context) => SplashScreen(),
@@ -29,5 +31,6 @@ class Routes {
     // riwayatgenset: (context) => RiwayatGenset(),
     addriwayatgenset: (context) => AddRiwayatGenset(),
     // settings: (context) => SettingsPage(),
+    ubahkode:(context) => UbahKode(),
   };
 }
