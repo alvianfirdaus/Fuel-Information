@@ -1,9 +1,12 @@
+import 'package:intl/intl.dart';
+
 class ItemReal {
   final double awal;
   final double akhir;
   final double konsum;
   final String date; // Add date field
   // final String xnama;
+  
 
 
   ItemReal({
@@ -13,6 +16,7 @@ class ItemReal {
     required this.date,
 
   });
+  
 
    factory ItemReal.fromJson(Map<dynamic, dynamic> json, String date) {
     return ItemReal(
@@ -22,5 +26,16 @@ class ItemReal {
       date: date, // Pass date to the Item
 
     );
+  }
+}
+extension DateFormatting on ItemReal {
+  String getMonthYear() {
+    try {
+      DateTime dateTime = DateFormat('yyyy_MM_dd').parse(date);
+      return DateFormat('MMMM yyyy').format(dateTime);
+    } catch (e) {
+      print('Date parsing error: $e');
+      return 'Tidak tersedia'; // Return a default value if parsing fails
+    }
   }
 }

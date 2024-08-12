@@ -3,6 +3,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:up2btangki/pages/history.dart';
 import 'package:up2btangki/pages/info.dart';
 import 'dart:io'; // Add this import
+import 'package:up2btangki/pages/historybulan.dart';
 
 class DashboardPage extends StatefulWidget {
   @override
@@ -11,36 +12,50 @@ class DashboardPage extends StatefulWidget {
 
 class _DashboardPageState extends State<DashboardPage> {
   final DatabaseReference _databaseReference = FirebaseDatabase.instance.ref();
-  double _fuelLevel = 0.0; // Use double for more precise volume representation
-  String _temperature = 'none'; // Placeholder for temperature
-  String _status = 'none'; // Placeholder for status
+  double _fuelLevel = 0.0;
+  double _temperature = 0.0;
+  String _status = 'none';
 
   @override
   void initState() {
     super.initState();
-    _databaseReference.child('fuelinformation/tankVolume').onValue.listen((event) {
-      final dynamic value = event.snapshot.value;
-      setState(() {
-        _fuelLevel = (value != null) ? double.tryParse(value.toString()) ?? 0.0 : 0.0;
-      });
-    });
 
-    // Example listener for temperature and status; replace with actual paths
-    _databaseReference.child('temperature').onValue.listen((event) {
-      final dynamic value = event.snapshot.value;
-      setState(() {
-        _temperature = value?.toString() ?? 'none';
-      });
-    });
+    _databaseReference.child('fuelinformation/tankVolume').onValue.listen(
+      (event) {
+        final dynamic value = event.snapshot.value;
+        setState(() {
+          _fuelLevel = (value != null) ? double.tryParse(value.toString()) ?? 0.0 : 0.0;
+        });
+      },
+      onError: (error) {
+        print('Error: $error');
+      },
+    );
 
-    _databaseReference.child('status').onValue.listen((event) {
-      final dynamic value = event.snapshot.value;
-      setState(() {
-        _status = value?.toString() ?? 'none';
-      });
-    });
+    _databaseReference.child('fuelinformation/temperature').onValue.listen(
+      (event) {
+        final dynamic value = event.snapshot.value;
+        setState(() {
+          _temperature = (value != null) ? double.tryParse(value.toString()) ?? 0.0 : 0.0;
+        });
+      },
+      onError: (error) {
+        print('Error: $error');
+      },
+    );
+
+    _databaseReference.child('status').onValue.listen(
+      (event) {
+        final dynamic value = event.snapshot.value;
+        setState(() {
+          _status = value?.toString() ?? 'none';
+        });
+      },
+      onError: (error) {
+        print('Error: $error');
+      },
+    );
   }
-
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -101,7 +116,7 @@ class _DashboardPageState extends State<DashboardPage> {
                             ),
                             SizedBox(height: 8),
                             Text(
-                              '$_fuelLevel Liter',
+                              '${_fuelLevel.toInt()} Liter',
                               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black),
                             ),
                           ],
@@ -149,8 +164,8 @@ class _DashboardPageState extends State<DashboardPage> {
                                 ),
                                 SizedBox(height: 8),
                                 Text(
-                                  _temperature,
-                                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
+                                  '$_temperature °C',
+                                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black),
                                 ),
                               ],
                             ),
@@ -188,12 +203,12 @@ class _DashboardPageState extends State<DashboardPage> {
                               children: [
                                 Text(
                                   'Status',
-                                  style: TextStyle(fontSize: 16, color: Colors.black),
+                                  style: TextStyle(fontSize: 14, color: Colors.black),
                                 ),
                                 SizedBox(height: 8),
                                 Text(
                                   _status,
-                                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
+                                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
                                 ),
                               ],
                             ),
@@ -261,7 +276,10 @@ class _DashboardPageState extends State<DashboardPage> {
                         ),
                         child: ElevatedButton(
                           onPressed: () {
-                            // Add navigation logic for monthly data
+                             Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => HistoryBulanPage()),
+                            );
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.transparent, // Transparent background

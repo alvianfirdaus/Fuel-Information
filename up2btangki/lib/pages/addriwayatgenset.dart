@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:intl/intl.dart';
 
 class AddRiwayatGenset extends StatefulWidget {
   @override
@@ -43,6 +44,32 @@ class _AddRiwayatGensetState extends State<AddRiwayatGenset> {
           SnackBar(content: Text('Gagal menyimpan data: $error')),
         );
       }
+    }
+  }
+
+  Future<void> _selectDate(BuildContext context) async {
+    DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+    if (picked != null && picked != DateTime.now()) {
+      setState(() {
+        _tanggalController.text = DateFormat('d MMMM yyyy').format(picked);
+      });
+    }
+  }
+
+  Future<void> _selectTime(BuildContext context) async {
+    TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    );
+    if (picked != null) {
+      setState(() {
+        _waktuController.text = picked.format(context);
+      });
     }
   }
 
@@ -119,32 +146,37 @@ class _AddRiwayatGensetState extends State<AddRiwayatGenset> {
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: 5),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(10),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.5),
-                          spreadRadius: 2,
-                          blurRadius: 5,
-                          offset: Offset(0, 3),
+                  GestureDetector(
+                    onTap: () => _selectDate(context),
+                    child: AbsorbPointer(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.5),
+                              spreadRadius: 2,
+                              blurRadius: 5,
+                              offset: Offset(0, 3),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                    child: TextFormField(
-                      controller: _tanggalController,
-                      decoration: InputDecoration(
-                        hintText: 'Masukkan Tanggal',
-                        border: InputBorder.none,
-                        contentPadding: EdgeInsets.all(16),
+                        child: TextFormField(
+                          controller: _tanggalController,
+                          decoration: InputDecoration(
+                            hintText: 'Masukkan Tanggal',
+                            border: InputBorder.none,
+                            contentPadding: EdgeInsets.all(16),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Tanggal tidak boleh kosong';
+                            }
+                            return null;
+                          },
+                        ),
                       ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Tanggal tidak boleh kosong';
-                        }
-                        return null;
-                      },
                     ),
                   ),
                 ],
@@ -158,32 +190,37 @@ class _AddRiwayatGensetState extends State<AddRiwayatGenset> {
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: 5),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(10),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.5),
-                          spreadRadius: 2,
-                          blurRadius: 5,
-                          offset: Offset(0, 3),
+                  GestureDetector(
+                    onTap: () => _selectTime(context),
+                    child: AbsorbPointer(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.5),
+                              spreadRadius: 2,
+                              blurRadius: 5,
+                              offset: Offset(0, 3),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                    child: TextFormField(
-                      controller: _waktuController,
-                      decoration: InputDecoration(
-                        hintText: 'Masukkan Waktu',
-                        border: InputBorder.none,
-                        contentPadding: EdgeInsets.all(16),
+                        child: TextFormField(
+                          controller: _waktuController,
+                          decoration: InputDecoration(
+                            hintText: 'Masukkan Waktu',
+                            border: InputBorder.none,
+                            contentPadding: EdgeInsets.all(16),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Waktu tidak boleh kosong';
+                            }
+                            return null;
+                          },
+                        ),
                       ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Waktu tidak boleh kosong';
-                        }
-                        return null;
-                      },
                     ),
                   ),
                 ],

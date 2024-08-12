@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart'; // Pastikan paket intl sudah di-import
+
 class Item {
   final double awal;
   final double akhir;
@@ -19,7 +21,7 @@ class Item {
     this.keterangan,
     this.nama,
     required this.reference,
-    this.tanggal,
+    required this.tanggal,
     this.waktu,
   });
 
@@ -35,5 +37,14 @@ class Item {
       tanggal: json['tanggal'],
       waktu: json['waktu'],
     );
+  }
+  
+}
+DateTime _parseTanggal(String tanggal) {
+  try {
+    return DateFormat('dd MMMM yyyy').parse(tanggal); // Sesuaikan format
+  } catch (e) {
+    print('Error parsing date: $e');
+    return DateTime.now();
   }
 }

@@ -25,7 +25,7 @@ class _RiwayatGensetState extends State<RiwayatGenset> {
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             ListTile(
-              title: Text('Terbaru'),
+              title: Text('Terlama'),
               onTap: () {
                 setState(() {
                   _isNewestFirst = true;
@@ -34,7 +34,7 @@ class _RiwayatGensetState extends State<RiwayatGenset> {
               },
             ),
             ListTile(
-              title: Text('Terlama'),
+              title: Text('Terbaru'),
               onTap: () {
                 setState(() {
                   _isNewestFirst = false;
