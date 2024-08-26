@@ -9,7 +9,6 @@ class AddRiwayatGenset extends StatefulWidget {
 
 class _AddRiwayatGensetState extends State<AddRiwayatGenset> {
   final _formKey = GlobalKey<FormState>();
-  final _namaController = TextEditingController();
   final _tanggalController = TextEditingController();
   final _waktuController = TextEditingController();
   final _keteranganController = TextEditingController();
@@ -17,15 +16,30 @@ class _AddRiwayatGensetState extends State<AddRiwayatGenset> {
   final DatabaseReference _databaseReference =
       FirebaseDatabase.instance.ref().child('xmaintenance');
 
+  List<TextEditingController> _namaControllers = [
+    TextEditingController(),
+  ];
+
+  void _addNameField() {
+    if (_namaControllers.length < 5) {
+      setState(() {
+        _namaControllers.add(TextEditingController());
+      });
+    }
+  }
+
   void _saveData() async {
     if (_formKey.currentState!.validate()) {
       // Generate a unique reference key
       String uniqueReference = "REF-${DateTime.now().millisecondsSinceEpoch}";
 
+      // Collect all names
+      List<String> names = _namaControllers.map((controller) => controller.text).toList();
+
       // Create a Map with the data to save
       Map<String, dynamic> dataToSave = {
         'reference': uniqueReference,
-        'nama': _namaController.text,
+        'nama': names,
         'tanggal': _tanggalController.text,
         'waktu': _waktuController.text,
         'keterangan': _keteranganController.text,
@@ -107,34 +121,44 @@ class _AddRiwayatGensetState extends State<AddRiwayatGenset> {
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: 5),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(10),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.5),
-                          spreadRadius: 2,
-                          blurRadius: 5,
-                          offset: Offset(0, 3),
+                  ..._namaControllers.map((controller) {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 10.0),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.5),
+                              spreadRadius: 2,
+                              blurRadius: 5,
+                              offset: Offset(0, 3),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                    child: TextFormField(
-                      controller: _namaController,
-                      decoration: InputDecoration(
-                        hintText: 'Masukkan Nama',
-                        border: InputBorder.none,
-                        contentPadding: EdgeInsets.all(16),
+                        child: TextFormField(
+                          controller: controller,
+                          decoration: InputDecoration(
+                            hintText: 'Masukkan Nama Pelaksana ${_namaControllers.indexOf(controller) + 1}',
+                            border: InputBorder.none,
+                            contentPadding: EdgeInsets.all(16),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Nama tidak boleh kosong';
+                            }
+                            return null;
+                          },
+                        ),
                       ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Nama tidak boleh kosong';
-                        }
-                        return null;
-                      },
+                    );
+                  }).toList(),
+                  if (_namaControllers.length < 5)
+                    IconButton(
+                      icon: Icon(Icons.add_circle_outline),
+                      onPressed: _addNameField,
                     ),
-                  ),
                 ],
               ),
               SizedBox(height: 20),

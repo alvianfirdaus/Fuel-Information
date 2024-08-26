@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:up2btangki/pages/history.dart';
-import 'package:up2btangki/pages/info.dart';
+// import 'package:up2btangki/pages/info.dart';
 import 'dart:io'; // Add this import
 import 'package:up2btangki/pages/historybulan.dart';
+import 'package:up2btangki/widgets/infogensetwidget.dart';
+import 'package:up2btangki/widgets/grafikwidget.dart';
+import 'package:up2btangki/pages/about.dart';
 
 class DashboardPage extends StatefulWidget {
   @override
@@ -14,8 +17,8 @@ class _DashboardPageState extends State<DashboardPage> {
   final DatabaseReference _databaseReference = FirebaseDatabase.instance.ref();
   double _fuelLevel = 0.0;
   double _temperature = 0.0;
-  String _status = 'none';
-
+  String _statusText = 'Off'; // Initialize with 'Off'
+ 
   @override
   void initState() {
     super.initState();
@@ -44,11 +47,15 @@ class _DashboardPageState extends State<DashboardPage> {
       },
     );
 
-    _databaseReference.child('status').onValue.listen(
+    _databaseReference.child('fuelinformation/status').onValue.listen(
       (event) {
-        final dynamic value = event.snapshot.value;
+        final int status = event.snapshot.value as int? ?? 0; // Handle int status from JSON
         setState(() {
-          _status = value?.toString() ?? 'none';
+          if (status == 1) {
+            _statusText = 'On';
+          } else {
+            _statusText = 'Off';
+          }
         });
       },
       onError: (error) {
@@ -58,14 +65,15 @@ class _DashboardPageState extends State<DashboardPage> {
   }
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        exit(0); // Exits the application
-        return false;
-      },
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        body: Stack(
+  return WillPopScope(
+    onWillPop: () async {
+      // exit(0); // Exits the application
+      return true;
+    },
+    child: Scaffold(
+      backgroundColor: Colors.white,
+      body: SingleChildScrollView( // Wrap the entire body in SingleChildScrollView
+        child: Stack(
           children: [
             // Yellow background
             Container(
@@ -73,9 +81,9 @@ class _DashboardPageState extends State<DashboardPage> {
               color: Colors.yellow,
             ),
             Positioned(
-              top: MediaQuery.of(context).size.height * 0.15 - 80, // Adjust the position to place the logo on the boundary
+              top: MediaQuery.of(context).size.height * 0.15 - 80,
               left: 10,
-              child: Image.asset('assets/images/logoatas.png', width: 150, height: 150), // Replace with your logo asset
+              child: Image.asset('assets/images/logoatas.png', width: 150, height: 150),
             ),
             Padding(
               padding: const EdgeInsets.all(10.0),
@@ -124,7 +132,6 @@ class _DashboardPageState extends State<DashboardPage> {
                       ],
                     ),
                   ),
-                  
                   SizedBox(height: 20),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -207,7 +214,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                 ),
                                 SizedBox(height: 8),
                                 Text(
-                                  _status,
+                                  _statusText,
                                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
                                 ),
                               ],
@@ -217,8 +224,9 @@ class _DashboardPageState extends State<DashboardPage> {
                       ),
                     ],
                   ),
-                  
-                  SizedBox(height: 20),
+                  InfoGenset(),
+                  GrafikWidget(), // Add the GrafikWidget here
+                  SizedBox(height: 20), // Add space between GrafikWidget and buttons
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
@@ -244,9 +252,9 @@ class _DashboardPageState extends State<DashboardPage> {
                             );
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.transparent, // Transparent background
-                            elevation: 0, // Remove elevation
-                            padding: EdgeInsets.all(0), // Remove padding to fit content
+                            backgroundColor: Colors.transparent,
+                            elevation: 0,
+                            padding: EdgeInsets.all(0),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),
@@ -276,15 +284,15 @@ class _DashboardPageState extends State<DashboardPage> {
                         ),
                         child: ElevatedButton(
                           onPressed: () {
-                             Navigator.push(
+                            Navigator.push(
                               context,
                               MaterialPageRoute(builder: (context) => HistoryBulanPage()),
                             );
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.transparent, // Transparent background
-                            elevation: 0, // Remove elevation
-                            padding: EdgeInsets.all(0), // Remove padding to fit content
+                            backgroundColor: Colors.transparent,
+                            elevation: 0,
+                            padding: EdgeInsets.all(0),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),
@@ -300,34 +308,34 @@ class _DashboardPageState extends State<DashboardPage> {
                       ),
                     ],
                   ),
-                  
                 ],
               ),
             ),
           ],
         ),
-        bottomNavigationBar: BottomNavigationBar(
-          items: const <BottomNavigationBarItem>[
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              label: 'Home',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.info_outline),
-              label: 'Info',
-            ),
-          ],
-          selectedItemColor: Colors.yellow,
-          onTap: (index) {
-            if (index == 1) {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => InfoPage()),
-              );
-            }
-          },
-        ),
       ),
-    );
-  }
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.info_outline),
+            label: 'Info',
+          ),
+        ],
+        selectedItemColor: Colors.yellow,
+        onTap: (index) {
+          if (index == 1) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => AboutPage()),
+            );
+          }
+        },
+      ),
+    ),
+  );
+}
 }

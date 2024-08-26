@@ -6,7 +6,7 @@ import 'package:up2btangki/pages/login.dart';
 import 'package:up2btangki/pages/info.dart';
 import 'package:up2btangki/pages/riwayatgenset.dart';
 import 'package:up2btangki/pages/addriwayatgenset.dart';
-import 'package:up2btangki/pages/ubahkode.dart';
+import 'package:up2btangki/pages/profile.dart';
 import 'package:up2btangki/pages/historybulan.dart';
 
 
@@ -21,7 +21,7 @@ class Routes {
   static const String loginscreen = '/loginscreen';
   static const String riwayatgenset = '/riwayatgenset';
   static const String addriwayatgenset = '/addriwayatgenset';
-  static const String ubahkode = '/ubahkode';
+  static const String profile = '/profile';
   static const String historybulan ='/historybulan';
 
 
@@ -34,7 +34,14 @@ class Routes {
     // riwayatgenset: (context) => RiwayatGenset(),
     addriwayatgenset: (context) => AddRiwayatGenset(),
     // settings: (context) => SettingsPage(),
-    ubahkode:(context) => UbahKode(),
+    // ubahkode:(context) => UbahKode(username: ModalRoute.of(context)!.settings.arguments as String),
     historybulan: (context) => HistoryBulanPage(),
+    // profile: (context) {
+    //   final username = ModalRoute.of(context)!.settings.arguments as String?;
+    //   return ProfilePage(username: username ?? '');  // Ensure username is passed correctly
+   profile: (context) {
+      final username = ModalRoute.of(context)?.settings.arguments as String?;
+      return ProfilePage(username: username ?? '');
+    },
   };
 }

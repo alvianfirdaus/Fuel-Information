@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';  // Perbaikan impor
+import 'package:flutter/material.dart';
 
 class AboutPage extends StatefulWidget {
   @override
@@ -6,38 +6,53 @@ class AboutPage extends StatefulWidget {
 }
 
 class _AboutPageState extends State<AboutPage> {
+  int _selectedIndex = 0;
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+
+    // Handle navigation based on the selected index
+    if (index == 0) {
+      Navigator.pop(context); // Go back to the previous screen (Home)
+    } else if (index == 1) {
+      // You are already on the AboutPage, so no need to navigate
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        centerTitle: true, // Center the title
+        centerTitle: true,
         title: Text(
           'Tentang FuTra',
           style: TextStyle(
-            fontFamily: 'Poppins', // Using the built-in Roboto font
-            fontSize: 20, // Set the font size
-            fontWeight: FontWeight.bold, // Set the font weight
+            fontFamily: 'Poppins',
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
           ),
         ),
-        backgroundColor: Colors.yellow, // Set the background color of the AppBar
-        foregroundColor: Colors.black, // Set the color of the text and icons
+        backgroundColor: Colors.yellow,
+        foregroundColor: Colors.black,
       ),
-      body: SingleChildScrollView( // Add SingleChildScrollView
+      body: SingleChildScrollView(
         child: Center(
           child: Column(
             children: [
-              SizedBox(height: MediaQuery.of(context).size.height * 0.01), // Reduce the space from the top
+              SizedBox(height: MediaQuery.of(context).size.height * 0.01),
               Container(
-                margin: EdgeInsets.only(top: 5.0), // Adjust margin to control the space around the logo
-                padding: EdgeInsets.all(5.0), // Adjust padding to control the space inside the container
-                child: Image.asset('assets/images/lomo.png', width: 300, height: 200), // Larger logo
+                margin: EdgeInsets.only(top: 5.0),
+                padding: EdgeInsets.all(5.0),
+                child: Image.asset('assets/images/lomo.png', width: 300, height: 200),
               ),
-              SizedBox(height: 10), // Add some space between the image and text
+              SizedBox(height: 10),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: Text(
                   'FuTra (Fuel Tracking) adalah sebuah aplikasi canggih yang dirancang khusus untuk memantau dan mengelola penggunaan Bahan Bakar Minyak (BBM) di Unit Pelaksana Pengatur Beban (UP2B). Aplikasi ini bertujuan untuk meningkatkan efisiensi operasional, mengurangi pemborosan, dan memastikan ketersediaan bahan bakar yang optimal. Dengan FuTra, pengguna dapat memonitor konsumsi BBM secara real-time, melacak pengiriman dan penyimpanan, serta mendapatkan laporan yang komprehensif tentang penggunaan bahan bakar.',
-                  textAlign: TextAlign.justify, // Justify the text
+                  textAlign: TextAlign.justify,
                 ),
               ),
               Padding(
@@ -78,7 +93,7 @@ class _AboutPageState extends State<AboutPage> {
                   ],
                 ),
               ),
-              SizedBox(height: 20), // Add some space before the bottom content
+              SizedBox(height: 20),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: Column(
@@ -94,7 +109,7 @@ class _AboutPageState extends State<AboutPage> {
                               textAlign: TextAlign.center,
                             ),
                             SizedBox(height: 5),
-                            Image.asset('assets/images/pln.png', width: 100, height: 100), // Left image
+                            Image.asset('assets/images/pln.png', width: 100, height: 100),
                           ],
                         ),
                         Column(
@@ -105,7 +120,7 @@ class _AboutPageState extends State<AboutPage> {
                               textAlign: TextAlign.center,
                             ),
                             SizedBox(height: 5),
-                            Image.asset('assets/images/polinema.png', width: 100, height: 100), // Right image
+                            Image.asset('assets/images/polinema.png', width: 100, height: 100),
                           ],
                         ),
                       ],
@@ -116,6 +131,21 @@ class _AboutPageState extends State<AboutPage> {
             ],
           ),
         ),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.info_outline),
+            label: 'Info',
+          ),
+        ],
+        currentIndex: _selectedIndex,
+        selectedItemColor: Colors.yellow,
+        onTap: _onItemTapped,
       ),
     );
   }

@@ -11,7 +11,7 @@ class LoginScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset('assets/images/orang.png', width: 250), // Adjusted image size
+            Image.asset('assets/images/orang.png', width: 250),
             SizedBox(height: 16),
             Text(
               "''Genset Terpantau\ndalam Satu Genggaman''",
@@ -23,7 +23,7 @@ class LoginScreen extends StatelessWidget {
             ),
             SizedBox(height: 32),
             SizedBox(
-              width: 300, // Adjusted button width
+              width: 300,
               height: 50,
               child: ElevatedButton(
                 onPressed: () {
@@ -35,7 +35,7 @@ class LoginScreen extends StatelessWidget {
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  elevation: 5, // Added shadow to the button
+                  elevation: 5,
                   shadowColor: Colors.black,
                 ),
                 child: Text("Masuk"),
@@ -54,25 +54,40 @@ class AccessCodeDialog extends StatefulWidget {
 }
 
 class _AccessCodeDialogState extends State<AccessCodeDialog> {
-  final TextEditingController _codeController = TextEditingController();
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
   bool _isLoading = false;
 
-  void _verifyAccessCode(BuildContext context) async {
+  void _verifyLogin(BuildContext context) async {
     setState(() {
       _isLoading = true;
     });
 
-    final DatabaseReference ref = FirebaseDatabase.instance.ref("fuelinformation/token");
+    final DatabaseReference ref = FirebaseDatabase.instance.ref("authentication");
     final snapshot = await ref.get();
+
+    bool isAuthenticated = false;
+
     if (snapshot.exists) {
-      final int token = snapshot.value as int;
-      if (token == int.parse(_codeController.text)) {
+      final users = snapshot.value as Map<dynamic, dynamic>;
+
+      users.forEach((key, value) {
+        final user = value as Map<dynamic, dynamic>;
+        if (user['username'] == _usernameController.text &&
+            user['password'] == _passwordController.text) {
+          isAuthenticated = true;
+        }
+      });
+
+      if (isAuthenticated) {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => DashboardPage()),
         );
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Kode akses salah')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Username atau password salah')),
+        );
       }
     }
 
@@ -84,28 +99,94 @@ class _AccessCodeDialogState extends State<AccessCodeDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text("Kode Akses"),
-      content: TextField(
-        controller: _codeController,
-        decoration: InputDecoration(hintText: "Masukkan kode akses"),
-        keyboardType: TextInputType.number,
+      title: Text(
+        "Masuk",
+        textAlign: TextAlign.center,
+      ),
+      
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextField(
+            // autofillHints: [AutofillHints.username],
+            controller: _usernameController,
+            decoration: InputDecoration(
+              hintText: "Masukkan username",
+              filled: true,
+              fillColor: Colors.white,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+            ),
+          ),
+          SizedBox(height: 8),
+          TextField(
+            // autofillHints: [AutofillHints.password],
+            controller: _passwordController,
+            decoration: InputDecoration(
+              hintText: "Masukkan password",
+              filled: true,
+              fillColor: Colors.white,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+            ),
+            obscureText: true,
+          ),
+        ],
       ),
       actions: [
-        TextButton(
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-          child: Text("Cancel"),
-        ),
-        ElevatedButton(
-          onPressed: _isLoading
-              ? null
-              : () {
-                  _verifyAccessCode(context);
-                },
-          child: _isLoading ? CircularProgressIndicator() : Text("Login"),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text(
+                "Cancel",
+                style: TextStyle(
+                  color: Color.fromARGB(255, 0, 0, 0),
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              style: TextButton.styleFrom(
+                backgroundColor: const Color.fromARGB(255, 253, 218, 13),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                  side: BorderSide(color: Color.fromARGB(255, 253, 218, 13)),
+                ),
+              ),
+            ),
+            SizedBox(width: 10), // Optional space between buttons
+            ElevatedButton(
+              onPressed: _isLoading
+                  ? null
+                  : () {
+                      _verifyLogin(context);
+                    },
+              child: _isLoading
+                  ? CircularProgressIndicator()
+                  : Text(
+                      "Login",
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color.fromARGB(255, 253, 218, 13),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+              ),
+            ),
+          ],
         ),
       ],
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20.0),
+      ),
     );
   }
 }

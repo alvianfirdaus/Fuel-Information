@@ -7,7 +7,7 @@ class Item {
   final String date; // Add date field
   // final String xnama;
   final String? keterangan;
-  final String? nama;
+  final List<String>? nama; // Update nama to be a List<String>
   final String reference;
   final String? tanggal;
   final String? waktu;
@@ -26,13 +26,18 @@ class Item {
   });
 
    factory Item.fromJson(Map<dynamic, dynamic> json, String date) {
+    // Handle nama as List<String>
+    List<String>? namaList;
+    if (json['nama'] != null) {
+      namaList = List<String>.from(json['nama']);
+    }
     return Item(
       awal: json['awal']?.toDouble() ?? 0.0,
       akhir: json['akhir']?.toDouble() ?? 0.0,
       konsum: json['konsum']?.toDouble() ?? 0.0,
       date: date, // Pass date to the Item
       keterangan: json['keterangan'],
-      nama: json['nama'],
+      nama: namaList,
       reference: json['reference'],
       tanggal: json['tanggal'],
       waktu: json['waktu'],

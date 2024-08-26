@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:up2btangki/models/item.dart';
-import 'package:firebase_database/firebase_database.dart'; // Import Firebase Database
+import 'package:firebase_database/firebase_database.dart';
 
 class CardWidgetPerbaikan extends StatelessWidget {
   final Item item;
@@ -10,7 +10,7 @@ class CardWidgetPerbaikan extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Dismissible(
-      key: Key(item.reference), // Use the unique reference as the key
+      key: Key(item.reference),
       background: Container(
         color: Colors.red,
         child: Align(
@@ -49,14 +49,14 @@ class CardWidgetPerbaikan extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '${item.nama}', // Display item.nama below item.keterangan
+                  item.nama?.join(', ') ?? '', // Display the list as a comma-separated string
                   style: TextStyle(
-                    fontSize: 15, // Match the title font size
-                    fontWeight: FontWeight.w700, // Match the title font weight
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
                     color: Color(0xff4a4a4a),
                   ),
                 ),
-                SizedBox(height: 4), // Add space between the keterangan and nama
+                SizedBox(height: 4),
                 Text(
                   '${item.tanggal}',
                   style: TextStyle(
@@ -115,7 +115,7 @@ class CardWidgetPerbaikan extends StatelessWidget {
                     ),
                     Padding(
                       padding: EdgeInsets.only(left: 8, top: 8),
-                      child: Text('Teknisi: ${item.nama}'),
+                      child: Text('Teknisi: ${item.nama?.join(', ')}'),
                     ),
                     Padding(
                       padding: EdgeInsets.only(left: 8, top: 8),
@@ -140,10 +140,75 @@ class CardWidgetPerbaikan extends StatelessWidget {
   }
 
   void _deleteItem(BuildContext context) async {
-    final databaseReference = FirebaseDatabase.instance.ref().child('xmaintenance');
+  final shouldDelete = await showDialog<bool>(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        title: Center(
+          child: Text(
+            'Konfirmasi',
+            style: TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.bold,
+              fontSize: 20,
+            ),
+          ),
+        ),
+        content: Text(
+          'Apakah Anda yakin ingin menghapus data ini?',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 16,
+            color: Colors.black,
+          ),
+        ),
+        actionsAlignment: MainAxisAlignment.center,
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            style: TextButton.styleFrom(
+              backgroundColor: Colors.yellow,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(5),
+              ),
+              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+            ),
+            child: Text(
+              'Tidak',
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 16,
+              ),
+            ),
+          ),
+          SizedBox(width: 16),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: TextButton.styleFrom(
+              backgroundColor: Colors.yellow,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(5),
+              ),
+              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+            ),
+            child: Text(
+              'Ya',
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 16,
+              ),
+            ),
+          ),
+        ],
+      );
+    },
+  );
 
-    // Debug print the reference being used
-    print('Deleting item with reference: ${item.reference}');
+  if (shouldDelete == true) {
+    final databaseReference = FirebaseDatabase.instance.ref().child('xmaintenance');
 
     try {
       await databaseReference.child(item.reference).remove();
@@ -152,9 +217,7 @@ class CardWidgetPerbaikan extends StatelessWidget {
           content: Text('Item deleted successfully'),
         ),
       );
-      print('Item successfully deleted');
     } catch (error) {
-      print('Error deleting item: $error'); // Print the error for debugging
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Failed to delete item: $error'),
@@ -162,4 +225,6 @@ class CardWidgetPerbaikan extends StatelessWidget {
       );
     }
   }
+}
+
 }

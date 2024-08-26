@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:up2btangki/pages/about.dart';
 import 'package:up2btangki/pages/akses.dart';
 import 'package:up2btangki/pages/genset.dart';
-import 'package:up2btangki/pages/ubahkode.dart';
+import 'package:up2btangki/pages/profile.dart';
+import 'package:up2btangki/routes/routes.dart';
 
 class CardWidget extends StatelessWidget {
   final String title;
@@ -52,10 +53,19 @@ class Info extends StatelessWidget {
           CardWidget(
             title: 'Ubah Kode Akses',
             onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => UbahKode()),
-              );
+              final username = ModalRoute.of(context)?.settings.arguments as String?;
+              print('Username received in Info page: $username'); // Debugging statement
+              if (username != null && username.isNotEmpty) {
+                Navigator.pushNamed(
+                  context,
+                  Routes.profile,
+                  arguments: username,
+                );
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Username tidak ditemukan.')),
+                );
+              }
             },
           ),
         ],
