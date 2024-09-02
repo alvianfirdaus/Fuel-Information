@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:up2btangki/routes/routes.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -12,16 +13,30 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    // Menambahkan delay 3 detik sebelum transisi ke logo kedua
+    _checkLoginStatus();
+    _showLogoTransition();
+  }
+
+  Future<void> _checkLoginStatus() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+
+    // Navigate based on login status after the logo transition
+    Future.delayed(Duration(seconds: 5), () {
+      if (isLoggedIn) {
+        Navigator.pushReplacementNamed(context, Routes.dashboard);
+      } else {
+        Navigator.pushReplacementNamed(context, Routes.loginscreen);
+      }
+    });
+  }
+
+  void _showLogoTransition() {
+    // Transition between logos
     Future.delayed(Duration(seconds: 3), () {
       setState(() {
         _showFirstLogo = false;
       });
-    });
-
-    // Menambahkan delay 5 detik sebelum navigasi ke dashboard
-    Future.delayed(Duration(seconds: 5), () {
-      Navigator.pushReplacementNamed(context, Routes.loginscreen);
     });
   }
 
@@ -43,7 +58,7 @@ class _SplashScreenState extends State<SplashScreen> {
                       height: 170,
                     )
                   : Image.asset(
-                      'assets/images/logoatas.png', // Ganti dengan path logo kedua
+                      'assets/images/logoatas.png',
                       key: ValueKey(2),
                       width: 170,
                       height: 170,

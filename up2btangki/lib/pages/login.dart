@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:up2btangki/pages/dashboard.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 
 class LoginScreen extends StatelessWidget {
   @override
@@ -63,37 +65,41 @@ class _AccessCodeDialogState extends State<AccessCodeDialog> {
       _isLoading = true;
     });
 
-    final DatabaseReference ref = FirebaseDatabase.instance.ref("authentication");
-    final snapshot = await ref.get();
+    try {
+      UserCredential userCredential = await FirebaseAuth.instance
+          .signInWithEmailAndPassword(
+              email: _usernameController.text,
+              password: _passwordController.text);
 
-    bool isAuthenticated = false;
-
-    if (snapshot.exists) {
-      final users = snapshot.value as Map<dynamic, dynamic>;
-
-      users.forEach((key, value) {
-        final user = value as Map<dynamic, dynamic>;
-        if (user['username'] == _usernameController.text &&
-            user['password'] == _passwordController.text) {
-          isAuthenticated = true;
-        }
-      });
-
-      if (isAuthenticated) {
-        Navigator.pushReplacement(
+      if (userCredential.user != null) {
+        await _saveLoginState();
+        Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => DashboardPage()),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Username atau password salah')),
+          (Route<dynamic> route) => false, // Remove all previous routes
         );
       }
+    } on FirebaseAuthException catch (e) {
+      String errorMessage;
+      if (e.code == 'user-not-found') {
+        errorMessage = 'Username tidak ditemukan';
+      } else if (e.code == 'wrong-password') {
+        errorMessage = 'Password salah';
+      } else {
+        errorMessage = 'Terjadi kesalahan';
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(errorMessage)),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
-
-    setState(() {
-      _isLoading = false;
-    });
+  }
+  Future<void> _saveLoginState() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('isLoggedIn', true);
   }
 
   @override
@@ -103,15 +109,13 @@ class _AccessCodeDialogState extends State<AccessCodeDialog> {
         "Masuk",
         textAlign: TextAlign.center,
       ),
-      
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           TextField(
-            // autofillHints: [AutofillHints.username],
             controller: _usernameController,
             decoration: InputDecoration(
-              hintText: "Masukkan username",
+              hintText: "Masukkan email",
               filled: true,
               fillColor: Colors.white,
               border: OutlineInputBorder(
@@ -121,7 +125,6 @@ class _AccessCodeDialogState extends State<AccessCodeDialog> {
           ),
           SizedBox(height: 8),
           TextField(
-            // autofillHints: [AutofillHints.password],
             controller: _passwordController,
             decoration: InputDecoration(
               hintText: "Masukkan password",

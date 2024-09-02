@@ -35,7 +35,8 @@ android {
 
     defaultConfig {
         applicationId = "com.example.up2btangki"
-        minSdk = flutter.minSdkVersion
+        // minSdk = flutter.minSdkVersion
+        minSdkVersion 23 // Explicitly set to 23 to match library requirements
         targetSdk = flutter.targetSdkVersion
         versionCode = flutterVersionCode.toInteger()
         versionName = flutterVersionName
@@ -56,5 +57,9 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:1.8.10"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.10"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.10"
+    implementation 'com.google.firebase:firebase-messaging:23.0.0' // Check for the latest version
     // other dependencies
+    //  implementation 'com.google.firebase:firebase-core:21.0.0' // Add Firebase Core dependency
+    // // other dependencies
+    // implementation 'com.google.firebase:firebase-core:20.2.0' // Compatible with firebase_core: ^3.4.0
 }

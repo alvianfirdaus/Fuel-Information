@@ -325,7 +325,6 @@ class _DashboardPageState extends State<DashboardPage> {
             label: 'Info',
           ),
         ],
-        selectedItemColor: Colors.yellow,
         onTap: (index) {
           if (index == 1) {
             Navigator.push(

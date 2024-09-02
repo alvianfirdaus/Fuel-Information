@@ -6,6 +6,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'firebase_options.dart'; // Ganti dengan file Firebase Options Anda
 import 'routes/routes.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // Plugin untuk notifikasi lokal
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
@@ -72,6 +73,7 @@ Future<void> _initializeLocalNotifications() async {
 
 // Inisialisasi Firebase Cloud Messaging
 void _initializeFCM() {
+  
   FirebaseMessaging.instance.getToken().then((token) {
     print('FCM Token: $token');
     // Kirim token ke server jika diperlukan
@@ -156,12 +158,32 @@ Future<void> _showNotification(String title, String body) async {
 }
 
 // Kelas utama aplikasi
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  bool isLoggedIn = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkLoginStatus();
+  }
+
+  Future<void> _checkLoginStatus() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      initialRoute: Routes.splash,
+      initialRoute: isLoggedIn ? Routes.dashboard : Routes.splash,
       routes: Routes.routes,
     );
   }
