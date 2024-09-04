@@ -9,7 +9,8 @@ class Item {
   final String? keterangan;
   final List<String>? nama; // Update nama to be a List<String>
   final String reference;
-  final String? tanggal;
+  // final String? tanggal;
+  final DateTime? tanggal; // Update tanggal to DateTime
   final String? waktu;
 
   Item({
@@ -39,12 +40,23 @@ class Item {
       keterangan: json['keterangan'],
       nama: namaList,
       reference: json['reference'],
-      tanggal: json['tanggal'],
+      // tanggal: json['tanggal'],
+      tanggal: json['tanggal'] != null ? _parseTanggal(json['tanggal']) : null, // Parse tanggal
+      
       waktu: json['waktu'],
     );
   }
-  
+  // Add this method to format tanggal for display
+  String formattedTanggal() {
+    if (tanggal != null) {
+      return DateFormat('dd MMMM yyyy').format(tanggal!); // Format date only
+    } else {
+      return 'N/A'; // Or handle null case appropriately
+    }
+  }
 }
+  
+
 DateTime _parseTanggal(String tanggal) {
   try {
     return DateFormat('dd MMMM yyyy').parse(tanggal); // Sesuaikan format
@@ -53,3 +65,4 @@ DateTime _parseTanggal(String tanggal) {
     return DateTime.now();
   }
 }
+

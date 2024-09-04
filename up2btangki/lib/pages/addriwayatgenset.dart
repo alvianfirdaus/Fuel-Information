@@ -51,7 +51,8 @@ class _AddRiwayatGensetState extends State<AddRiwayatGenset> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Data berhasil disimpan')),
         );
-        Navigator.of(context).pop();
+        Navigator.of(context).pop(dataToSave);
+        // Navigator.of(context).pop();
       } catch (error) {
         print('Failed to save data: $error'); // Print the error for debugging
         ScaffoldMessenger.of(context).showSnackBar(

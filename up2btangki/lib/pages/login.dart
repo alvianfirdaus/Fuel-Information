@@ -101,6 +101,38 @@ class _AccessCodeDialogState extends State<AccessCodeDialog> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setBool('isLoggedIn', true);
   }
+  Future<void> _checkSessionExpiry() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? loginTimeStr = prefs.getString('loginTime');
+
+    if (loginTimeStr != null) {
+      DateTime loginTime = DateTime.parse(loginTimeStr);
+      DateTime now = DateTime.now();
+
+      // Check if 24 hours have passed
+      if (now.isAfter(loginTime.add(Duration(hours: 24)))) {
+        _logout();
+      } else {
+        // Check if it's midnight and the day has changed
+        if (now.day != loginTime.day) {
+          _logout();
+        }
+      }
+    }
+  }
+
+  Future<void> _logout() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove('isLoggedIn');
+    await prefs.remove('loginTime');
+    await FirebaseAuth.instance.signOut();
+
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => LoginScreen()),
+      (Route<dynamic> route) => false,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {

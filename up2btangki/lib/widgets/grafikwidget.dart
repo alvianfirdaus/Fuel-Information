@@ -142,7 +142,7 @@ class _GrafikWidgetState extends State<GrafikWidget> {
                           LineChartBarData(
                             spots: _spots,
                             isCurved: true,
-                            color: Colors.yellow, // Use a single color instead of a list
+                            color: Colors.yellow, // Use a single color instead of a list 
                             barWidth: 2,
                             isStrokeCapRound: true,
                             dotData: FlDotData(show: true),
@@ -152,7 +152,10 @@ class _GrafikWidgetState extends State<GrafikWidget> {
                       ),
                     ),
                   )
-                : Center(child: CircularProgressIndicator()),
+                : Center(child: Text(
+                  'Belum Ada Data Bulan Ini ❗',
+                  style: TextStyle(fontSize: 16, color: Colors.black),
+                )),
           ],
         ),
       ),

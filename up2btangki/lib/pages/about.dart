@@ -253,6 +253,9 @@ class _AboutPageState extends State<AboutPage> {
                     ],
                   ),
                 ),
+                
+
+
                 SizedBox(height: 20),
                 ElevatedButton.icon(
                   onPressed: _showLogoutConfirmation, // Call the confirmation dialog

@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_database/firebase_database.dart'; // Import Firebase dependencies
 import 'package:up2btangki/models/item.dart'; // Import your Item model
 import 'package:up2btangki/widgets/card_widgetsperbaikan.dart'; // Import the CardWidgetPerbaikan widget
 import 'package:up2btangki/pages/addriwayatgenset.dart';
 
 class RiwayatGenset extends StatefulWidget {
-  final List<Item> items; // List of items
+  List<Item> items; // List of items (now non-final to allow mutation)
 
   RiwayatGenset({required this.items}); // Constructor
 
@@ -15,47 +16,74 @@ class RiwayatGenset extends StatefulWidget {
 class _RiwayatGensetState extends State<RiwayatGenset> {
   bool _isNewestFirst = true; // Toggle to control sorting
 
-  void _showFilterDialog() {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: Text('Filter'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            ListTile(
-              title: Text('Terlama'),
-              onTap: () {
-                setState(() {
-                  _isNewestFirst = true;
-                });
-                Navigator.of(context).pop();
-              },
-            ),
-            ListTile(
-              title: Text('Terbaru'),
-              onTap: () {
-                setState(() {
-                  _isNewestFirst = false;
-                });
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        ),
-      );
-    },
-  );
+  void _removeItem(Item item) {
+    setState(() {
+      widget.items.remove(item);
+    });
+  }
 
+  void _showFilterDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Filter'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              ListTile(
+                title: Text('Terlama'),
+                onTap: () {
+                  setState(() {
+                    _isNewestFirst = false; // Show oldest first
+                  });
+                  Navigator.of(context).pop();
+                },
+              ),
+              ListTile(
+                title: Text('Terbaru'),
+                onTap: () {
+                  setState(() {
+                    _isNewestFirst = true; // Show newest first
+                  });
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _reloadItems() async {
+    DatabaseReference ref = FirebaseDatabase.instance.ref().child('xmaintenance');
+    DataSnapshot snapshot = await ref.get();
+
+    if (snapshot.exists) {
+      List<Item> items = [];
+      Map<dynamic, dynamic> data = snapshot.value as Map<dynamic, dynamic>;
+
+      data.forEach((key, value) {
+        String date = key; // Use key if it's a date or use a timestamp field from value
+        items.add(Item.fromJson(Map<String, dynamic>.from(value as Map<dynamic, dynamic>), date));
+      });
+
+      // Sort items by date (assuming ascending order)
+      items.sort((a, b) => a.tanggal!.compareTo(b.tanggal!));
+
+      setState(() {
+        widget.items = items;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     // Sort items based on the toggle
     List<Item> sortedItems = _isNewestFirst
-        ? widget.items.reversed.toList()
-        : widget.items.toList();
+        ? widget.items.reversed.toList() // Newest first
+        : widget.items.toList(); // Oldest first
 
     return Scaffold(
       appBar: AppBar(
@@ -94,17 +122,25 @@ class _RiwayatGensetState extends State<RiwayatGenset> {
           : ListView.builder(
               itemCount: sortedItems.length,
               itemBuilder: (context, index) {
-                return CardWidgetPerbaikan(item: sortedItems[index]);
+                final item = sortedItems[index];
+                return CardWidgetPerbaikan(
+                  item: item,
+                  // Use formattedTanggal() to show date only
+                  dateText: item.formattedTanggal(),
+                  onDelete: () => _removeItem(item), // Pass the delete callback
+                );
               },
             ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
+        onPressed: () async {
+          await Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => AddRiwayatGenset(),
             ),
           );
+
+          await _reloadItems(); // Reload the items after returning from the AddRiwayatGenset screen
         },
         backgroundColor: Colors.yellow,
         child: Icon(

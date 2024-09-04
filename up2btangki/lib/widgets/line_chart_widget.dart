@@ -45,7 +45,16 @@ class _FuelConsumptionChartState extends State<FuelConsumptionChart> {
       aspectRatio: 1.70,
       child: Padding(
         padding: const EdgeInsets.all(12),
-        child: LineChart(
+        child : spots.isEmpty
+          ? Center(
+            child: Text(
+              "Belum Ada Data Bulan Ini",
+              style: TextStyle(fontSize: 16, color: Colors.black),
+            )
+          )
+        
+        
+        : LineChart(
           LineChartData(
             gridData: FlGridData(
               show: true,

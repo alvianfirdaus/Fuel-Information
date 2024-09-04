@@ -39,9 +39,11 @@ class Routes {
     // profile: (context) {
     //   final username = ModalRoute.of(context)!.settings.arguments as String?;
     //   return ProfilePage(username: username ?? '');  // Ensure username is passed correctly
-   profile: (context) {
-      final username = ModalRoute.of(context)?.settings.arguments as String?;
-      return ProfilePage(username: username ?? '');
-    },
+  //  profile: (context) {
+  //     final username = ModalRoute.of(context)?.settings.arguments as String?;
+  //     return ProfilePage(username: username ?? '');
+  //   },
+    
+
   };
 }

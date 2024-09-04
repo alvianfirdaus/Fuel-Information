@@ -70,33 +70,34 @@ class GensetPage extends StatelessWidget {
                   GensetInfoRow(label: 'Output', value: '250 kVA'),
                   GensetInfoRow(label: 'Volt', value: '380'),
                   GensetInfoRow(label: 'Ampere', value: '380'),
-                  Row(
-                    children: [
-                      Text(
-                        'Riwayat Perbaikan',
-                        style: TextStyle(fontSize: 16),
-                      ),
-                      SizedBox(width: 8),
-                      InkWell(
-                        onTap: () async {
-                          List<Item> items = await fetchItemsFromRealtimeDatabase();
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => RiwayatGenset(items: items),
-                            ),
-                          );
-                        },
-                        child: Text(
-                          'Lihat',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.blue,
-                            decoration: TextDecoration.underline,
+                  SizedBox(height: 16),
+                  Center(
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        List<Item> items = await fetchItemsFromRealtimeDatabase();
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => RiwayatGenset(items: items),
                           ),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.yellow,
+                        foregroundColor: Colors.black,
+                        padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
                         ),
                       ),
-                    ],
+                      child: Text(
+                        'Riwayat Perbaikan',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),

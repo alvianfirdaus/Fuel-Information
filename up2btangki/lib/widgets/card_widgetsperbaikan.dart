@@ -4,8 +4,14 @@ import 'package:firebase_database/firebase_database.dart';
 
 class CardWidgetPerbaikan extends StatelessWidget {
   final Item item;
+  final String dateText; // Accept formatted date text
+  final VoidCallback onDelete; // Accept a callback for deletion
 
-  const CardWidgetPerbaikan({required this.item});
+  const CardWidgetPerbaikan({
+    required this.item,
+    required this.dateText, // Require formatted date text
+    required this.onDelete, // Require the callback
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -22,8 +28,15 @@ class CardWidgetPerbaikan extends StatelessWidget {
         ),
       ),
       direction: DismissDirection.startToEnd,
-      onDismissed: (direction) {
-        _deleteItem(context);
+      confirmDismiss: (direction) async {
+        // Show confirmation dialog before deleting
+        final shouldDelete = await _showDeleteConfirmationDialog(context);
+        if (shouldDelete) {
+          _deleteItem(context);
+          onDelete(); // Call the onDelete callback to update the state
+        }
+        // Return false to prevent the card from disappearing if not deleted
+        return shouldDelete;
       },
       child: InkWell(
         onLongPress: () {
@@ -49,7 +62,7 @@ class CardWidgetPerbaikan extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  item.nama?.join(', ') ?? '', // Display the list as a comma-separated string
+                  item.nama?.join(', ') ?? '',
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
@@ -58,7 +71,7 @@ class CardWidgetPerbaikan extends StatelessWidget {
                 ),
                 SizedBox(height: 4),
                 Text(
-                  '${item.tanggal}',
+                  dateText, // Display formatted date text
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w400,
@@ -80,6 +93,75 @@ class CardWidgetPerbaikan extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<bool> _showDeleteConfirmationDialog(BuildContext context) async {
+    return await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          title: Center(
+            child: Text(
+              'Konfirmasi',
+              style: TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+              ),
+            ),
+          ),
+          content: Text(
+            'Apakah Anda yakin ingin menghapus data ini?',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.black,
+            ),
+          ),
+          actionsAlignment: MainAxisAlignment.center,
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              style: TextButton.styleFrom(
+                backgroundColor: Colors.yellow,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5),
+                ),
+                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+              ),
+              child: Text(
+                'Tidak',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 16,
+                ),
+              ),
+            ),
+            SizedBox(width: 16),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              style: TextButton.styleFrom(
+                backgroundColor: Colors.yellow,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5),
+                ),
+                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+              ),
+              child: Text(
+                'Ya',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 16,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    ) ?? false; // If dialog is dismissed, return false by default
   }
 
   void _showDetailDialog(BuildContext context) {
@@ -119,7 +201,7 @@ class CardWidgetPerbaikan extends StatelessWidget {
                     ),
                     Padding(
                       padding: EdgeInsets.only(left: 8, top: 8),
-                      child: Text('Tanggal: ${item.tanggal}'),
+                      child: Text('Tanggal: $dateText'), // Use dateText for formatted date
                     ),
                     Padding(
                       padding: EdgeInsets.only(left: 8, top: 8),
@@ -140,74 +222,6 @@ class CardWidgetPerbaikan extends StatelessWidget {
   }
 
   void _deleteItem(BuildContext context) async {
-  final shouldDelete = await showDialog<bool>(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-        title: Center(
-          child: Text(
-            'Konfirmasi',
-            style: TextStyle(
-              color: Colors.black,
-              fontWeight: FontWeight.bold,
-              fontSize: 20,
-            ),
-          ),
-        ),
-        content: Text(
-          'Apakah Anda yakin ingin menghapus data ini?',
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 16,
-            color: Colors.black,
-          ),
-        ),
-        actionsAlignment: MainAxisAlignment.center,
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            style: TextButton.styleFrom(
-              backgroundColor: Colors.yellow,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(5),
-              ),
-              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-            ),
-            child: Text(
-              'Tidak',
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 16,
-              ),
-            ),
-          ),
-          SizedBox(width: 16),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            style: TextButton.styleFrom(
-              backgroundColor: Colors.yellow,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(5),
-              ),
-              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-            ),
-            child: Text(
-              'Ya',
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 16,
-              ),
-            ),
-          ),
-        ],
-      );
-    },
-  );
-
-  if (shouldDelete == true) {
     final databaseReference = FirebaseDatabase.instance.ref().child('xmaintenance');
 
     try {
@@ -225,6 +239,4 @@ class CardWidgetPerbaikan extends StatelessWidget {
       );
     }
   }
-}
-
 }

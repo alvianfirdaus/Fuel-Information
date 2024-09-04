@@ -76,9 +76,18 @@ class _DashboardPageState extends State<DashboardPage> {
         child: Stack(
           children: [
             // Yellow background
+            // Container(
+            //   height: MediaQuery.of(context).size.height * 0.30,
+            //   color: Colors.yellow,
+            // ),
             Container(
               height: MediaQuery.of(context).size.height * 0.30,
-              color: Colors.yellow,
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage('assets/images/banner2.png'), // Path to the uploaded image
+                  fit: BoxFit.cover,
+                ),
+              ),
             ),
             Positioned(
               top: MediaQuery.of(context).size.height * 0.15 - 80,

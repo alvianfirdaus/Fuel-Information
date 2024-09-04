@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ProfilePage extends StatefulWidget {
-  final String username;
-
-  ProfilePage({required this.username});
-
   @override
   _ProfilePageState createState() => _ProfilePageState();
 }
@@ -15,46 +11,50 @@ class _ProfilePageState extends State<ProfilePage> {
   final _oldPasswordController = TextEditingController();
   final _newPasswordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
-  String _userName = '';
 
-  @override
-  void initState() {
-    super.initState();
-    print('Username received: ${widget.username}'); // Debugging statement
-    _fetchUserInfo();
-  }
-
-  Future<void> _fetchUserInfo() async {
-    final DatabaseReference ref = FirebaseDatabase.instance.ref("authentication");
-    final snapshot = await ref.get();
-
-    if (snapshot.exists) {
-      final users = snapshot.value as Map<dynamic, dynamic>;
-
-      bool userFound = false;
-      users.forEach((key, value) {
-        final user = value as Map<dynamic, dynamic>;
-        if (user['username'] == widget.username) {
-          userFound = true;
-          setState(() {
-            _userName = user['nama'];
-          });
-          print('User found: ${user['nama']}'); // Debugging statement
-        }
-      });
-
-      if (!userFound) {
-        print('User not found');
-      }
-    } else {
-      print('No data found in Firebase');
-    }
-  }
-
-  void _updatePassword() {
+  Future<void> _updatePassword() async {
     if (_formKey.currentState?.validate() ?? false) {
-      // Implement the password update logic here
-      print('Update password');
+      try {
+        final user = FirebaseAuth.instance.currentUser;
+
+        if (user != null) {
+          // Re-authenticate the user
+          final credential = EmailAuthProvider.credential(
+            email: user.email!,
+            password: _oldPasswordController.text,
+          );
+
+          await user.reauthenticateWithCredential(credential);
+
+          // Update the password
+          if (_newPasswordController.text == _confirmPasswordController.text) {
+            await user.updatePassword(_newPasswordController.text);
+            print('Password updated successfully');
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text('Password berhasil diperbarui'),
+              backgroundColor: Colors.green,
+            ));
+          } else {
+            print('New password and confirm password do not match');
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text('Password baru dan konfirmasi password tidak cocok'),
+              backgroundColor: Colors.red,
+            ));
+          }
+        } else {
+          print('User is not signed in');
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text('Pengguna tidak masuk'),
+            backgroundColor: Colors.red,
+          ));
+        }
+      } catch (e) {
+        print('Failed to update password: $e');
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Gagal memperbarui password: $e'),
+          backgroundColor: Colors.red,
+        ));
+      }
     }
   }
 
@@ -67,55 +67,47 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Nama: $_userName',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 24.0),
-            Text('Ganti Password', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            SizedBox(height: 16.0),
-            Form(
-              key: _formKey,
-              child: Column(
-                children: [
-                  buildInputField(
-                    controller: _oldPasswordController,
-                    hintText: 'Masukkan password lama',
-                    validationMessage: 'Masukkan password lama',
-                    obscureText: true,
-                  ),
-                  SizedBox(height: 16.0),
-                  buildInputField(
-                    controller: _newPasswordController,
-                    hintText: 'Masukkan password baru',
-                    validationMessage: 'Masukkan password baru',
-                    obscureText: true,
-                  ),
-                  SizedBox(height: 16.0),
-                  buildInputField(
-                    controller: _confirmPasswordController,
-                    hintText: 'Konfirmasi password baru',
-                    validationMessage: 'Konfirmasi password baru',
-                    obscureText: true,
-                  ),
-                  SizedBox(height: 24.0),
-                  Center(
-                    child: ElevatedButton(
-                      onPressed: _updatePassword,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.yellow, // Button background color
-                        foregroundColor: Colors.black, // Text and icon color
-                      ),
-                      child: Text('Simpan'),
-                    ),
-                  ),
-                ],
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Ganti Password',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              SizedBox(height: 16.0),
+              buildInputField(
+                controller: _oldPasswordController,
+                hintText: 'Masukkan password lama',
+                validationMessage: 'Masukkan password lama',
+                obscureText: true,
               ),
-            ),
-          ],
+              SizedBox(height: 16.0),
+              buildInputField(
+                controller: _newPasswordController,
+                hintText: 'Masukkan password baru',
+                validationMessage: 'Masukkan password baru',
+                obscureText: true,
+              ),
+              SizedBox(height: 16.0),
+              buildInputField(
+                controller: _confirmPasswordController,
+                hintText: 'Konfirmasi password baru',
+                validationMessage: 'Konfirmasi password baru',
+                obscureText: true,
+              ),
+              SizedBox(height: 24.0),
+              Center(
+                child: ElevatedButton(
+                  onPressed: _updatePassword,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.yellow,
+                    foregroundColor: Colors.black,
+                  ),
+                  child: Text('Simpan'),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -132,7 +124,8 @@ class _ProfilePageState extends State<ProfilePage> {
       decoration: InputDecoration(
         hintText: hintText,
         border: OutlineInputBorder(),
-        contentPadding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+        contentPadding:
+            EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
       ),
       obscureText: obscureText,
       validator: (value) {
