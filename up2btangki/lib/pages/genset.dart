@@ -75,6 +75,8 @@ class GensetPage extends StatelessWidget {
                     child: ElevatedButton(
                       onPressed: () async {
                         List<Item> items = await fetchItemsFromRealtimeDatabase();
+
+                        items.sort((a, b) => b.tanggal!.compareTo(a.tanggal!)); // Sort descending
                         Navigator.push(
                           context,
                           MaterialPageRoute(

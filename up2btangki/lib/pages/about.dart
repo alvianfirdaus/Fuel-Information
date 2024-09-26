@@ -157,7 +157,7 @@ class _AboutPageState extends State<AboutPage> {
                             ),
                             SizedBox(height: 5),
                             Text(
-                              '0802841757925',
+                              '081235026920',
                               textAlign: TextAlign.justify,
                             ),
                           ],
@@ -195,7 +195,7 @@ class _AboutPageState extends State<AboutPage> {
                             ),
                             SizedBox(height: 5),
                             Text(
-                              '08992828928',
+                              '08123367',
                               textAlign: TextAlign.justify,
                             ),
                           ],

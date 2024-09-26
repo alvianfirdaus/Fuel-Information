@@ -5,7 +5,7 @@ import 'package:up2btangki/widgets/card_widgetsperbaikan.dart'; // Import the Ca
 import 'package:up2btangki/pages/addriwayatgenset.dart';
 
 class RiwayatGenset extends StatefulWidget {
-  List<Item> items; // List of items (now non-final to allow mutation)
+  List<Item> items;
 
   RiwayatGenset({required this.items}); // Constructor
 
@@ -16,12 +16,46 @@ class RiwayatGenset extends StatefulWidget {
 class _RiwayatGensetState extends State<RiwayatGenset> {
   bool _isNewestFirst = true; // Toggle to control sorting
 
-  void _removeItem(Item item) {
-    setState(() {
-      widget.items.remove(item);
+  @override
+  void initState() {
+    super.initState();
+    _setupRealtimeListener(); // Set up the real-time Firebase listener
+  }
+
+  // Set up a real-time listener to automatically update items when Firebase data changes
+  void _setupRealtimeListener() {
+    DatabaseReference ref = FirebaseDatabase.instance.ref().child('xmaintenance');
+    ref.onValue.listen((event) {
+      if (event.snapshot.exists) {
+        List<Item> items = [];
+        Map<dynamic, dynamic> data = event.snapshot.value as Map<dynamic, dynamic>;
+
+        data.forEach((key, value) {
+          String date = key; // Assuming the key is the date
+          items.add(Item.fromJson(Map<String, dynamic>.from(value as Map<dynamic, dynamic>), date));
+        });
+
+        // Sort items by date (ascending by default)
+        items.sort((a, b) => a.tanggal!.compareTo(b.tanggal!));
+
+        setState(() {
+          widget.items = items;
+        });
+      }
     });
   }
 
+  // Remove an item and delete it from Firebase
+  void _removeItem(Item item) async {
+    DatabaseReference ref = FirebaseDatabase.instance.ref().child('xmaintenance').child(item.reference);
+    await ref.remove(); // Remove the item from Firebase
+
+    setState(() {
+      widget.items.remove(item); // Remove from local list
+    });
+  }
+
+  // Show a filter dialog to switch between newest and oldest first
   void _showFilterDialog() {
     showDialog(
       context: context,
@@ -35,7 +69,7 @@ class _RiwayatGensetState extends State<RiwayatGenset> {
                 title: Text('Terlama'),
                 onTap: () {
                   setState(() {
-                    _isNewestFirst = false; // Show oldest first
+                    _isNewestFirst = false; // Oldest first
                   });
                   Navigator.of(context).pop();
                 },
@@ -44,7 +78,7 @@ class _RiwayatGensetState extends State<RiwayatGenset> {
                 title: Text('Terbaru'),
                 onTap: () {
                   setState(() {
-                    _isNewestFirst = true; // Show newest first
+                    _isNewestFirst = true; // Newest first
                   });
                   Navigator.of(context).pop();
                 },
@@ -56,6 +90,7 @@ class _RiwayatGensetState extends State<RiwayatGenset> {
     );
   }
 
+  // Manually reload items (can be used after adding new data)
   Future<void> _reloadItems() async {
     DatabaseReference ref = FirebaseDatabase.instance.ref().child('xmaintenance');
     DataSnapshot snapshot = await ref.get();
@@ -65,11 +100,11 @@ class _RiwayatGensetState extends State<RiwayatGenset> {
       Map<dynamic, dynamic> data = snapshot.value as Map<dynamic, dynamic>;
 
       data.forEach((key, value) {
-        String date = key; // Use key if it's a date or use a timestamp field from value
+        String date = key;
         items.add(Item.fromJson(Map<String, dynamic>.from(value as Map<dynamic, dynamic>), date));
       });
 
-      // Sort items by date (assuming ascending order)
+      // Sort items by date (ascending)
       items.sort((a, b) => a.tanggal!.compareTo(b.tanggal!));
 
       setState(() {
@@ -80,35 +115,32 @@ class _RiwayatGensetState extends State<RiwayatGenset> {
 
   @override
   Widget build(BuildContext context) {
-    // Sort items based on the toggle
+    // Sort items based on the toggle (newest or oldest first)
     List<Item> sortedItems = _isNewestFirst
         ? widget.items.reversed.toList() // Newest first
         : widget.items.toList(); // Oldest first
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.yellow, // Set AppBar background color to yellow
+        backgroundColor: Colors.yellow, // AppBar background color
         title: Text(
           'Perbaikan Genset',
           style: TextStyle(
-            color: Colors.black, // Text color
-            fontWeight: FontWeight.bold, // Make text bold
+            color: Colors.black, // Title color
+            fontWeight: FontWeight.bold, // Bold title
           ),
         ),
-        centerTitle: true, // Center the title text
+        centerTitle: true,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black), // Icon color to match the text
+          icon: Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
             Navigator.of(context).pop();
           },
         ),
         actions: [
           IconButton(
-            icon: Icon(
-              Icons.filter_list,
-              color: Colors.black,
-            ),
-            onPressed: _showFilterDialog,
+            icon: Icon(Icons.filter_list, color: Colors.black),
+            onPressed: _showFilterDialog, // Show filter options
           ),
         ],
       ),
@@ -125,9 +157,9 @@ class _RiwayatGensetState extends State<RiwayatGenset> {
                 final item = sortedItems[index];
                 return CardWidgetPerbaikan(
                   item: item,
-                  // Use formattedTanggal() to show date only
+                  // Display formatted date in the CardWidget
                   dateText: item.formattedTanggal(),
-                  onDelete: () => _removeItem(item), // Pass the delete callback
+                  onDelete: () => _removeItem(item), // Handle item deletion
                 );
               },
             ),
@@ -140,13 +172,10 @@ class _RiwayatGensetState extends State<RiwayatGenset> {
             ),
           );
 
-          await _reloadItems(); // Reload the items after returning from the AddRiwayatGenset screen
+          await _reloadItems(); // Reload items after adding new data
         },
         backgroundColor: Colors.yellow,
-        child: Icon(
-          Icons.add,
-          color: Colors.black,
-        ),
+        child: Icon(Icons.add, color: Colors.black),
       ),
     );
   }

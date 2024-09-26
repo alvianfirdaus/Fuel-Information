@@ -4,10 +4,11 @@
 #include <FirebaseESP32.h>
 #include <TimeLib.h>
 #include <WiFiUdp.h>
+#include <DHT.h> // Include the DHT library
 
 // Wi-Fi credentials
-const char* ssid = "AdjiDjatiDimar"; // replace with your Wi-Fi SSID
-const char* password = "OnMgs511"; // replace with your Wi-Fi password
+const char* ssid = "FUTRA_UP2B"; // replace with your Wi-Fi SSID
+const char* password = "dothebest"; // replace with your Wi-Fi password
 
 // Firebase Realtime Database
 const char* firebaseHost = "up2btangki-default-rtdb.asia-southeast1.firebasedatabase.app"; // Firebase host without "https://"
@@ -19,16 +20,25 @@ FirebaseAuth auth;
 
 LiquidCrystal_I2C lcd(0x27, 16, 2);
 
+// DHT11 sensor
+#define DHTPIN 4 // Pin connected to the DHT11 sensor
+#define DHTTYPE DHT11 // Define the sensor type
+
+DHT dht(DHTPIN, DHTTYPE);
+
+// KY-037 sensor
+#define SOUND_SENSOR_PIN 34 // Analog pin connected to KY-037 sensor
+
 #define echoPin 12 // Pin Echo
 #define trigPin 13 // Pin Trigger
 
 long duration;
 float jarak;
 
-float tinggiWadah = 9.5; // Tinggi wadah (jarak dasar dengan sensor) dalam cm
-float lebarWadah = 13; // Lebar wadah dalam cm
-float panjangWadah = 16; // Panjang wadah dalam cm
-float luasAlaswadah = 208; // Luas alas wadah dalam cm2
+float tinggiWadah = 115; // Tinggi wadah (jarak dasar dengan sensor) dalam cm
+float lebarWadah = 80; // Lebar wadah dalam cm
+float panjangWadah = 120; // Panjang wadah dalam cm
+float luasAlaswadah = 9600; // Luas alas wadah dalam cm2
 float tinggiAir;
 float volume;
 float volumeLiter;
@@ -36,8 +46,8 @@ float volumeLiter;
 unsigned long lastFailTime = 0; // Time of the last failed attempt
 const unsigned long failDurationLimit = 60000; // 1 minute in milliseconds
 
-float initialVolume = -1;
-float finalVolume = -1;
+int initialVolume = -1;
+int finalVolume = -1;
 
 const int timeZone = 7; // Time zone offset for GMT+7
 
@@ -49,6 +59,12 @@ void setup() {
   pinMode(echoPin, INPUT);
   lcd.init();
   lcd.backlight();
+
+  // Initialize DHT sensor
+  dht.begin();
+
+  // Initialize KY-037 sensor pin
+  pinMode(SOUND_SENSOR_PIN, INPUT);
 
   // Connect to Wi-Fi
   connectWiFi();
@@ -85,23 +101,50 @@ void loop() {
   volume = tinggiAir * luasAlaswadah;
   volumeLiter = volume / 1000.0; // Konversi volume dari ml ke liter
 
-  // Menampilkan hasil di LCD
+  // Membulatkan volumeLiter menjadi dua angka desimal
+  // float roundedVolumeLiter = round(volumeLiter * 100.0) / 100.0;
+
+  // Read temperature and humidity from DHT11
+  float temperature = dht.readTemperature();
+  float humidity = dht.readHumidity();
+
+  // Read sound level from KY-037
+  int soundLevel = analogRead(SOUND_SENSOR_PIN);
+
+  // Convert roundedVolumeLiter to an int
+  int volumeLiterInt = static_cast<int>(volumeLiter);
+  int tinggiAirInt = static_cast<int>(tinggiAir);
+
+  // Print sensor readings to Serial Monitor
+  // Serial.print("Temperature: ");
+  // Serial.print(temperature);
+  // Serial.println(" C");
+
+  // Serial.print("Humidity: ");
+  // Serial.print(humidity);
+  // Serial.println(" %");
+
+  Serial.print("Sound Level: ");
+  Serial.println(soundLevel);
+
+  // Display results on LCD
+  lcd.clear();
   lcd.setCursor(0, 0);
   lcd.print("T air:");
-  lcd.print(tinggiAir);
+  lcd.print(tinggiAirInt);
   lcd.print(" cm");
   lcd.setCursor(0, 1);
   lcd.print("V air:");
-  lcd.print(volumeLiter, 3); // Menampilkan volume dalam liter dengan 3 decimal places
+  lcd.print(volumeLiterInt); // Menampilkan volume dalam liter dengan 2 decimal places
   lcd.print(" L");
 
-  // Upload volume liter ke Firebase
+  // Upload rounded volume liter to Firebase
   String path = "/fuelinformation/tankVolume"; // Your desired path in Firebase
   if (Firebase.setFloat(firebaseData, path.c_str(), volumeLiter)) {
-    Serial.println("Data uploaded to Firebase");
+    // Serial.println("Volume data uploaded to Firebase");
     lastFailTime = 0; // Reset the fail time on successful upload
   } else {
-    Serial.print("Failed to upload data to Firebase: ");
+    Serial.print("Failed to upload volume data to Firebase: ");
     Serial.println(firebaseData.errorReason());
 
     if (lastFailTime == 0) {
@@ -113,6 +156,26 @@ void loop() {
     }
   }
 
+  // Upload temperature to Firebase
+  String tempPath = "/fuelinformation/temperature"; // Your desired path in Firebase
+  if (Firebase.setFloat(firebaseData, tempPath.c_str(), temperature)) {
+    // Serial.println("Temperature data uploaded to Firebase");
+    lastFailTime = 0; // Reset the fail time on successful upload
+  } else {
+    Serial.print("Failed to upload temperature data to Firebase: ");
+    Serial.println(firebaseData.errorReason());
+
+    if (lastFailTime == 0) {
+      lastFailTime = millis(); // Set the time of the first failure
+    } else if (millis() - lastFailTime > failDurationLimit) {
+      // Reconnect to Wi-Fi if failures exceed the limit
+      connectWiFi();
+      lastFailTime = 0; // Reset the fail time after reconnection attempt
+    }
+  }
+
+
+
   // Check for initial and final volume recording times
   int currentHour = localTime->tm_hour;
   int currentMinute = localTime->tm_min;
@@ -123,49 +186,49 @@ void loop() {
   snprintf(dateKey, sizeof(dateKey), "%04d_%02d_%02d",
            localTime->tm_year + 1900, localTime->tm_mon + 1, localTime->tm_mday);
 
-  // Initialize initialVolume if it hasn't been set yet
-  if (initialVolume == -1) {
-    initialVolume = volumeLiter;
+    // Set initialVolume at midnight (00:00:01)
+  if (initialVolume == -1 || (currentHour == 1 && currentMinute == 0)) {
+    initialVolume = volumeLiterInt;
     String initialPath = "/fuelinformation/zhistory/" + String(dateKey) + "/awal";
-    Firebase.setFloat(firebaseData, initialPath, initialVolume);
-    Serial.print("Initial Volume set: ");
-    Serial.println(initialVolume);
-  }
-
-  if (currentHour == 23 && currentMinute == 59 && currentSecond == 59 && finalVolume == -1) {
-    finalVolume = volumeLiter;
-    String finalPath = "/fuelinformation/zhistory/" + String(dateKey) + "/akhir";
-    Firebase.setFloat(firebaseData, finalPath, finalVolume);
-    Serial.print("Final Volume at 11:59 PM: ");
-    Serial.println(finalVolume);
-
-    // Calculate the difference between initial and final volumes
-    float volumeDifference = finalVolume - initialVolume;
-    String diffPath = "/fuelinformation/zhistory/" + String(dateKey) + "/konsum";
-    Firebase.setFloat(firebaseData, diffPath, volumeDifference);
-    Serial.print("Volume Difference: ");
-    Serial.println(volumeDifference);
-
-    // Reset initial and final volumes for the next day
-    initialVolume = -1;
-    finalVolume = -1;
-  }
-
-  // Ensure new date key is generated correctly for the next day
-  if (currentHour == 0 && currentMinute == 0 && currentSecond == 1) {
-    initialVolume = volumeLiter;
-    String initialPath = "/fuelinformation/zhistory/" + String(dateKey) + "/awal";
-    Firebase.setFloat(firebaseData, initialPath, initialVolume);
+    Firebase.setInt(firebaseData, initialPath, initialVolume);
     Serial.print("New Day Initial Volume set: ");
     Serial.println(initialVolume);
   }
 
+  // If it's 9:00:00 AM, set finalVolume and calculate difference
+  if (currentHour == 23 && currentMinute == 00 &&  finalVolume == -1) {
+    finalVolume = volumeLiterInt;
+    String finalPath = "/fuelinformation/zhistory/" + String(dateKey) + "/akhir";
+    Firebase.setInt(firebaseData, finalPath, finalVolume);
+    Serial.print("Final Volume at 9:00 AM: ");
+    Serial.println(finalVolume);
+
+    // Calculate the difference between initial and final volumes
+    int volumeDifference = initialVolume - finalVolume;
+    String diffPath = "/fuelinformation/zhistory/" + String(dateKey) + "/konsum";
+    Firebase.setInt(firebaseData, diffPath, volumeDifference);
+    Serial.print("Volume Difference: ");
+    Serial.println(volumeDifference);
+
+  }
+  // Reset finalVolume for the next day's calculation
+  if (currentHour == 0 && currentMinute == 5) {
+    initialVolume = -1;
+    finalVolume = -1;
+  }
   delay(3000);
 }
 
 void connectWiFi() {
   WiFi.begin(ssid, password);
   Serial.print("Connecting to Wi-Fi");
+   //----------
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("FUTRA UP2B Jatim");
+  lcd.setCursor(0, 1);
+  lcd.print("Connecting Wi-Fi");
+  lcd.clear();
   while (WiFi.status() != WL_CONNECTED) {
     Serial.print(".");
     delay(1000);
@@ -174,6 +237,13 @@ void connectWiFi() {
   Serial.println("Connected to Wi-Fi");
   Serial.print("IP Address: ");
   Serial.println(WiFi.localIP());
+  //----------
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Connected Wifi");
+  lcd.setCursor(0, 1);
+  lcd.print("IP");
+  lcd.print(WiFi.localIP());
 }
 
 bool syncTime() {
@@ -191,5 +261,8 @@ bool syncTime() {
   }
   setTime(now);
   Serial.println("Time synchronized successfully");
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Time Sukses");
   return true;
 }

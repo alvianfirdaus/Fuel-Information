@@ -4,6 +4,7 @@ import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'package:up2btangki/models/itemreal.dart';
 import 'package:up2btangki/models/data_service.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class HistoryBulanPage extends StatefulWidget {
   @override
@@ -63,43 +64,58 @@ class _HistoryBulanPageState extends State<HistoryBulanPage> {
     }
   }
 
-  Future<void> _generateCSV() async {
-    List<List<dynamic>> rows = [];
+    Future<void> _generateCSV() async {
+    // Request storage permission
+    var status = await Permission.storage.request();
 
-    // Add headers
-    rows.add(['Tanggal', 'Awal', 'Akhir', 'Konsumsi']);
+    if (status.isGranted) {
+      // If permission is granted, proceed with CSV generation
+      List<List<dynamic>> rows = [];
 
-    // Add data
-    for (var item in _fetchedItems) {
-      rows.add([item.date, item.awal, item.akhir, item.konsum]);
-    }
+      // Add headers
+      rows.add(['Tanggal', 'Awal', 'Akhir', 'Konsumsi']);
 
-    String csv = const ListToCsvConverter().convert(rows);
-
-    try {
-      Directory? downloadsDirectory;
-      if (Platform.isAndroid) {
-        downloadsDirectory = Directory('/storage/emulated/0/Download');
-      } else {
-        downloadsDirectory = await getExternalStorageDirectory();
+      // Add data
+      for (var item in _fetchedItems) {
+        rows.add([item.date, item.awal, item.akhir, item.konsum]);
       }
 
-      if (downloadsDirectory == null) {
-        throw Exception('Unable to access the Downloads directory');
+      String csv = const ListToCsvConverter().convert(rows);
+
+      try {
+        Directory? downloadsDirectory;
+        
+        if (Platform.isAndroid) {
+          // Use getExternalStorageDirectory for Android devices
+          downloadsDirectory = await getExternalStorageDirectory();
+        } else {
+          downloadsDirectory = await getApplicationDocumentsDirectory();
+        }
+
+        if (downloadsDirectory == null) {
+          throw Exception('Unable to access storage directory');
+        }
+
+        String outputFile = "${downloadsDirectory.path}/history_bulan_${_selectedMonth}_${_selectedYear}.csv";
+
+        File file = File(outputFile);
+        await file.writeAsString(csv);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('CSV file saved: $outputFile')),
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to save CSV file: $e')),
+        );
       }
-
-      String outputFile = "${downloadsDirectory.path}/history_bulan_${_selectedMonth}_${_selectedYear}.csv";
-
-      File file = File(outputFile);
-      await file.writeAsString(csv);
-
+    } else if (status.isDenied) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('CSV file saved: $outputFile')),
+        SnackBar(content: Text('Storage permission denied')),
       );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to save CSV file: $e')),
-      );
+    } else if (status.isPermanentlyDenied) {
+      // If permanently denied, suggest opening settings to grant the permission
+      openAppSettings();
     }
   }
 
